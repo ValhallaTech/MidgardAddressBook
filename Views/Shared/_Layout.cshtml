@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html lang = "en" >
+<head>
+    <meta charset = "utf-8" />
+    <meta content = "width=device-width, initial-scale=1.0"
+          name = "viewport" />
+    <title>@ViewData["Title"] - Midgard AddressBook</title>
+    <link href = "~/lib/bootstrap/dist/css/bootstrap.min.css"
+          rel = "stylesheet" />
+    <link href = "~/lib/font-awesome/css/all.css"
+          rel = "stylesheet" />
+    <link href = "~/lib/font-awesome/css/fontawesome.css"
+          rel = "stylesheet" />
+    <link href = "~/lib/font-awesome/css/regular.css"
+          rel = "stylesheet" />
+    <link href = "~/lib/font-awesome/css/solid.css"
+          rel = "stylesheet" />
+    <link href = "~/lib/animate.css/animate.min.css"
+          rel = "stylesheet" />
+    <link href = "~/css/site.css"
+          rel = "stylesheet" />
+</head>
+
+<body>
+
+<header>
+</header>
+
+<div class = "container" >
+    <main class = "pb-3"
+          role = "main" >
+        @RenderBody()
+    </main>
+</div>
+<footer class = "border-top footer text-muted" >
+    <div class = "container" >
+        &copy; 2020 - Midgard AddressBook by Valhalla Tech -
+        <a asp-action = "Privacy"
+           asp-area = ""
+           asp-controller = "Home" >
+            Privacy
+        </a>
+    </div>
+</footer>
+<script src = "~/lib/jquery/dist/jquery.min.js" ></script>
+<script src = "~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" ></script>
+<script asp-append-version = "true"
+        src = "~/js/site.js" ></script>
+
+@await RenderSectionAsync("Scripts", required: false).ConfigureAwait(false)
+</body>
+</html>

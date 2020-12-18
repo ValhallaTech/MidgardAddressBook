@@ -1,0 +1,814 @@
+﻿@using MidgardAddressBook.Models
+@model IEnumerable<AddressBookEntry>
+
+@{
+  ViewData["Title"] = "Index";
+}
+<div class="full-height d-flex align-items-center justify-content-center animate__animated animate__fadeIn">
+
+  <div class="modal fade" id="create" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Contact</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form class="needs-validation" novalidate>
+            <div class="avatar-upload">
+              <div class="avatar-edit">
+                <input type="file" id="imageUpload" accept=".png, .jpg, .jpeg" />
+                <label for="imageUpload"><i class="fas fa-pen pt-2"></i></label>
+              </div>
+              <div class="avatar-preview">
+                <div id="imagePreview" style="    background-image: url(//image.shutterstock.com/image-vector/people-vector-icon-user-10-260nw-661176622.jpg);">
+
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-md-6 mb-3">
+                <label for="validationCustom02">Phone Number</label>
+                <input type="text" class="form-control" id="validationCustom02" required>
+                <div class="valid-feedback">
+                  Looks good!
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-md-6 mb-3">
+                <label for="validationCustom01">First name</label>
+                <input type="text" class="form-control" id="validationCustom01" required>
+                <div class="valid-feedback">
+                  Looks good!
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="validationCustom02">Last name</label>
+                <input type="text" class="form-control" id="validationCustom02" required>
+                <div class="valid-feedback">
+                  Looks good!
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-md-6 mb-3">
+                <label for="validationCustom02">Address 1</label>
+                <input type="text" class="form-control" id="validationCustom02" required>
+                <div class="valid-feedback">
+                  Looks good!
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="validationCustom02">Address 2</label>
+                <input type="text" class="form-control" id="validationCustom02" required>
+                <div class="valid-feedback">
+                  Looks good!
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-md-6 mb-3">
+                <label for="validationCustom03">City</label>
+                <input type="text" class="form-control" id="validationCustom03" required>
+                <div class="invalid-feedback">
+                  Please provide a valid city.
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="validationCustom04">State</label>
+                <select class="custom-select" id="validationCustom04" required>
+                  <option selected disabled value="">Choose...</option>
+                  <option>...</option>
+                </select>
+                <div class="invalid-feedback">
+                  Please select a valid state.
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="validationCustom05">Zip</label>
+                <input type="text" class="form-control" id="validationCustom05" required>
+                <div class="invalid-feedback">
+                  Please provide a valid zip.
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-outline-success">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card border-secondary mt-3 mb-3 w-100 shadow-lg">
+    <div class="card-header d-flex justify-content-between bg-purple">
+      <a class="btn btn-outline-light text-light pt-2" data-toggle="modal" data-target="#create"><i class="fas fa-plus"></i> Add Contact</a>
+      <span class="h3 p-0 m-0 text-light">Address Book Pro</span>
+    </div>
+    <div class="card-body text-secondary">
+      <div class="list-container">
+        <div class="row">
+          <div class="col-4 border-right">
+            <form class="form-inline mb-2">
+              <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+              <button class="btn btn-outline-secondary border my-2 my-sm-0" type="submit">Search</button>
+            </form>
+            <div class="list-group" id="list-tab" role="tablist">
+              <a class="list-group-item list-group-item-action active" id="list-home-list" data-toggle="list" href="#list-home" role="tab" aria-controls="home">Denis Jojot</a>
+              <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">Lex Fridman</a>
+              <a class="list-group-item list-group-item-action" id="list-messages-list" data-toggle="list" href="#list-messages" role="tab" aria-controls="messages">Joe Rogan</a>
+              <a class="list-group-item list-group-item-action" id="list-settings-list" data-toggle="list" href="#list-settings" role="tab" aria-controls="settings">Jordan Peterson</a>
+              <a class="list-group-item list-group-item-action" id="list-watts-list" data-toggle="list" href="#awatts" role="tab" aria-controls="awatts">Alan Watts</a>
+              <a class="list-group-item list-group-item-action" id="list-jk-list" data-toggle="list" href="#jk" role="tab" aria-controls="jk">Jiddu Krishnamurti</a>
+
+            </div>
+          </div>
+          <div class="col-8">
+            <div class="tab-content" id="nav-tabContent">
+              <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list">
+                <div class="mb-3 text-center">
+                  <div class="avatar-upload">
+                    <div class="avatar-edit">
+                      <input type="file" id="imageUpload" accept=".png, .jpg, .jpeg" />
+                      <label for="imageUpload"><i class="fas fa-pen pt-2"></i></label>
+                    </div>
+                    <div class="avatar-preview">
+                      <div id="imagePreview" style="    background-image: url(//media-exp1.licdn.com/dms/image/C4D03AQGqu8xnXdTzFg/profile-displayphoto-shrink_200_200/0/1605480899815?e=1611187200&v=beta&t=xIV4bCtSP1flUSGTLFDPspFQ7dHkEZqJ5TSK2GmcHHI);">
+
+                      </div>
+                    </div>
+                  </div>
+                  <hr>
+                </div>
+                <div class="text-container">
+                  <form class="needs-validation" novalidate>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Phone Number</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="1234567" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Email</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="exampleEmail@mailinator.com" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom01">First name</label>
+                        <input type="text" class="form-control" id="validationCustom01" value="Denis" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Last name</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="Jojot" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Address 1</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="SomeAddress" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Address 2</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="SomeApt" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom03">City</label>
+                        <input type="text" class="form-control" id="validationCustom03" value="Charlotte" required>
+                        <div class="invalid-feedback">
+                          Please provide a valid city.
+                        </div>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                        <label for="validationCustom04">State</label>
+                        <select class="custom-select" id="validationCustom04" required>
+                          <option selected disabled value="">NC</option>
+                          <option>...</option>
+                        </select>
+                        <div class="invalid-feedback">
+                          Please select a valid state.
+                        </div>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                        <label for="validationCustom05">Zip</label>
+                        <input type="text" class="form-control" id="validationCustom05" value="28204" required>
+                        <div class="invalid-feedback">
+                          Please provide a valid zip.
+                        </div>
+                      </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                      <button class="btn btn-outline-secondary w-50" type="submit">Update</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">
+                <div class="mb-3 text-center">
+                  <div class="avatar-upload">
+                    <div class="avatar-edit">
+                      <input type="file" id="imageUpload" accept=".png, .jpg, .jpeg" />
+                      <label for="imageUpload"><i class="fas fa-pen pt-2"></i></label>
+                    </div>
+                    <div class="avatar-preview">
+                      <div id="imagePreview" style="background-image: url(//media-exp1.licdn.com/dms/image/C4E03AQHLCrHhGZ0xMg/profile-displayphoto-shrink_200_200/0?e=1611187200&v=beta&t=YlLtXIKnBDKSdhGJ1-1MAUZUROlutIc7t6cyD9p7JDg);">
+
+                      </div>
+                    </div>
+                  </div>
+                  <hr>
+                </div>
+                <div class="text-container">
+                  <form class="needs-validation" novalidate>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Phone Number</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="1234567" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Email</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="lex@goodPodcasts.net" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom01">First name</label>
+                        <input type="text" class="form-control" id="validationCustom01" value="Lex" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Last name</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="Fridman" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Address 1</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="SomeAddress" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Address 2</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="SomeApt" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom03">City</label>
+                        <input type="text" class="form-control" id="validationCustom03" value="Russia" required>
+                        <div class="invalid-feedback">
+                          Please provide a valid city.
+                        </div>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                        <label for="validationCustom04">State</label>
+                        <select class="custom-select" id="validationCustom04" required>
+                          <option selected disabled value="">Choose...</option>
+                          <option>...</option>
+                        </select>
+                        <div class="invalid-feedback">
+                          Please select a valid state.
+                        </div>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                        <label for="validationCustom05">Zip</label>
+                        <input type="text" class="form-control" id="validationCustom05" value="28204" required>
+                        <div class="invalid-feedback">
+                          Please provide a valid zip.
+                        </div>
+                      </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                      <button class="btn btn-outline-secondary w-50" type="submit">Update</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list">
+                <div class="mb-3 text-center">
+                  <div class="avatar-upload">
+                    <div class="avatar-edit">
+                      <input type="file" id="imageUpload" accept=".png, .jpg, .jpeg" />
+                      <label for="imageUpload"><i class="fas fa-pen pt-2"></i></label>
+                    </div>
+                    <div class="avatar-preview">
+                      <div id="imagePreview" style="background-image: url(//media-exp1.licdn.com/dms/image/C5603AQEUq0A7sSdTGw/profile-displayphoto-shrink_800_800/0?e=1611187200&v=beta&t=735QSR8pptykRIIQLJahFWvc0R6iaUL7ajGwQx9t9D8);">
+
+                      </div>
+                    </div>
+                  </div>
+                  <hr>
+                </div>
+                <div class="text-container">
+                  <form class="needs-validation" novalidate>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Phone Number</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="1234567" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Email</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="jre@mailinator.com" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom01">First name</label>
+                        <input type="text" class="form-control" id="validationCustom01" value="Joe" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Last name</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="Rogan" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Address 1</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="SomeAddress" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Address 2</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="SomeApt" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom03">City</label>
+                        <input type="text" class="form-control" id="validationCustom03" value="Texas" required>
+                        <div class="invalid-feedback">
+                          Please provide a valid city.
+                        </div>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                        <label for="validationCustom04">State</label>
+                        <select class="custom-select" id="validationCustom04" required>
+                          <option selected disabled value="">Choose...</option>
+                          <option>...</option>
+                        </select>
+                        <div class="invalid-feedback">
+                          Please select a valid state.
+                        </div>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                        <label for="validationCustom05">Zip</label>
+                        <input type="text" class="form-control" id="validationCustom05" value="Somewhere" required>
+                        <div class="invalid-feedback">
+                          Please provide a valid zip.
+                        </div>
+                      </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                      <button class="btn btn-outline-secondary w-50" type="submit">Update</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list">
+                <div class="mb-3 text-center">
+                  <div class="avatar-upload">
+                    <div class="avatar-edit">
+                      <input type="file" id="imageUpload" accept=".png, .jpg, .jpeg" />
+                      <label for="imageUpload"><i class="fas fa-pen pt-2"></i></label>
+                    </div>
+                    <div class="avatar-preview">
+                      <div id="imagePreview" style="background-image: url(//media-exp1.licdn.com/dms/image/C4E03AQH8O_ALf5VLGQ/profile-displayphoto-shrink_800_800/0?e=1611187200&v=beta&t=7HZYZuPj3eHxxYiF6scU-NnKKRWofEqMbqrJcccfsxk);">
+
+                      </div>
+                    </div>
+                  </div>
+                  <hr>
+                </div>
+                <div class="text-container">
+                  <form class="needs-validation" novalidate>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Phone Number</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="1234567" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Email</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="jbp@mailinator.com" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom01">First name</label>
+                        <input type="text" class="form-control" id="validationCustom01" value="Peter" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Last name</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="Jordanson" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Address 1</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="SomeAddress" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Address 2</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="SomeApt" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom03">City</label>
+                        <input type="text" class="form-control" id="validationCustom03" value="Toronto" required>
+                        <div class="invalid-feedback">
+                          Please provide a valid city.
+                        </div>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                        <label for="validationCustom04">State</label>
+                        <select class="custom-select" id="validationCustom04" required>
+                          <option selected disabled value="">Choose...</option>
+                          <option>...</option>
+                        </select>
+                        <div class="invalid-feedback">
+                          Please select a valid state.
+                        </div>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                        <label for="validationCustom05">Zip</label>
+                        <input type="text" class="form-control" id="validationCustom05" value="Canada" required>
+                        <div class="invalid-feedback">
+                          Please provide a valid zip.
+                        </div>
+                      </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                      <button class="btn btn-outline-secondary w-50" type="submit">Update</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div class="tab-pane fade show" id="awatts" role="tabpanel" aria-labelledby="list-awatts-list">
+                <div class="mb-3 text-center">
+                  <div class="avatar-upload">
+                    <div class="avatar-edit">
+                      <input type="file" id="imageUpload" accept=".png, .jpg, .jpeg" />
+                      <label for="imageUpload"><i class="fas fa-pen pt-2"></i></label>
+                    </div>
+                    <div class="avatar-preview">
+                      <div id="imagePreview" style="    background-image: url(//assets.rebelmouse.io/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbWFnZSI6Imh0dHBzOi8vYXNzZXRzLnJibC5tcy8xODY2MTI1Ny9vcmlnaW4uanBnIiwiZXhwaXJlc19hdCI6MTYwOTQ1MTMxOX0.rEYNjlaL7Q7RI-t5xi2a82P1COs1zC6sKMQgReiEbC8/img.jpg?width=1245&coordinates=0%2C0%2C0%2C0&height=700);">
+                      </div>
+                    </div>
+                  </div>
+                  <hr>
+                </div>
+                <div class="text-container">
+                  <form class="needs-validation" novalidate>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Phone Number</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="1234567" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Email</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="hahaha@mailinator.com" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom01">First name</label>
+                        <input type="text" class="form-control" id="validationCustom01" value="Alan" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Last name</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="Watts" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Address 1</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="SomeWhere" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Address 2</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="SomeTime" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom03">City</label>
+                        <input type="text" class="form-control" id="validationCustom03" value="Heaven" required>
+                        <div class="invalid-feedback">
+                          Please provide a valid city.
+                        </div>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                        <label for="validationCustom04">State</label>
+                        <select class="custom-select" id="validationCustom04" required>
+                          <option selected disabled value="">Choose...</option>
+                          <option>...</option>
+                        </select>
+                        <div class="invalid-feedback">
+                          Please select a valid state.
+                        </div>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                        <label for="validationCustom05">Zip</label>
+                        <input type="text" class="form-control" id="validationCustom05" value="Unavailable" required>
+                        <div class="invalid-feedback">
+                          Please provide a valid zip.
+                        </div>
+                      </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                      <button class="btn btn-outline-secondary w-50" type="submit">Update</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div class="tab-pane fade show" id="jk" role="tabpanel" aria-labelledby="list-jk-list">
+                <div class="mb-3 text-center">
+                  <div class="avatar-upload">
+                    <div class="avatar-edit">
+                      <input type="file" id="imageUpload" accept=".png, .jpg, .jpeg" />
+                      <label for="imageUpload"><i class="fas fa-pen pt-2"></i></label>
+                    </div>
+                    <div class="avatar-preview">
+                      <div id="imagePreview" style="    background-image: url(//yt3.ggpht.com/a/AATXAJybM3IptkFbzjwEyfIvDmQLqiu8d_aObBLU80uBFA=s900-c-k-c0x00ffffff-no-rj);">
+                      </div>
+                    </div>
+                  </div>
+                  <hr>
+                </div>
+                <div class="text-container">
+                  <form class="needs-validation" novalidate>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Phone Number</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="1234567" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Email</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="jkrishnamurti@mailinator.com" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom01">First name</label>
+                        <input type="text" class="form-control" id="validationCustom01" value="Jiddu" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Last name</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="Krishnamurti" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Address 1</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="SomeWhere" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom02">Address 2</label>
+                        <input type="text" class="form-control" id="validationCustom02" value="SomeTime" required>
+                        <div class="valid-feedback">
+                          Looks good!
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="col-md-6 mb-3">
+                        <label for="validationCustom03">City</label>
+                        <input type="text" class="form-control" id="validationCustom03" value="Heaven" required>
+                        <div class="invalid-feedback">
+                          Please provide a valid city.
+                        </div>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                        <label for="validationCustom04">State</label>
+                        <select class="custom-select" id="validationCustom04" required>
+                          <option selected disabled value="">Choose...</option>
+                          <option>...</option>
+                        </select>
+                        <div class="invalid-feedback">
+                          Please select a valid state.
+                        </div>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                        <label for="validationCustom05">Zip</label>
+                        <input type="text" class="form-control" id="validationCustom05" value="Unavailable" required>
+                        <div class="invalid-feedback">
+                          Please provide a valid zip.
+                        </div>
+                      </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                      <button class="btn btn-outline-secondary w-50" type="submit">Update</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@*<h1>Index</h1>
+
+  <p>
+      <a asp-action="Create">Create New</a>
+  </p>
+  <table class="table">
+      <thead>
+          <tr>
+              <th>
+                  @Html.DisplayNameFor(model => model.FirstName)
+              </th>
+              <th>
+                  @Html.DisplayNameFor(model => model.LastName)
+              </th>
+              <th>
+                  @Html.DisplayNameFor(model => model.Email)
+              </th>
+              <th>
+                  @Html.DisplayNameFor(model => model.Avatar)
+              </th>
+              <th>
+                  @Html.DisplayNameFor(model => model.FileName)
+              </th>
+              <th>
+                  @Html.DisplayNameFor(model => model.Adress1)
+              </th>
+              <th>
+                  @Html.DisplayNameFor(model => model.Address2)
+              </th>
+              <th>
+                  @Html.DisplayNameFor(model => model.City)
+              </th>
+              <th>
+                  @Html.DisplayNameFor(model => model.ZipCode)
+              </th>
+              <th>
+                  @Html.DisplayNameFor(model => model.Phone)
+              </th>
+              <th>
+                  @Html.DisplayNameFor(model => model.DateAdded)
+              </th>
+              <th></th>
+          </tr>
+      </thead>
+      <tbody>
+  @foreach (var item in Model) {
+          <tr>
+              <td>
+                  @Html.DisplayFor(modelItem => item.FirstName)
+              </td>
+              <td>
+                  @Html.DisplayFor(modelItem => item.LastName)
+              </td>
+              <td>
+                  @Html.DisplayFor(modelItem => item.Email)
+              </td>
+              <td>
+                  @Html.DisplayFor(modelItem => item.Avatar)
+              </td>
+              <td>
+                  @Html.DisplayFor(modelItem => item.FileName)
+              </td>
+              <td>
+                  @Html.DisplayFor(modelItem => item.Adress1)
+              </td>
+              <td>
+                  @Html.DisplayFor(modelItem => item.Address2)
+              </td>
+              <td>
+                  @Html.DisplayFor(modelItem => item.City)
+              </td>
+              <td>
+                  @Html.DisplayFor(modelItem => item.ZipCode)
+              </td>
+              <td>
+                  @Html.DisplayFor(modelItem => item.Phone)
+              </td>
+              <td>
+                  @Html.DisplayFor(modelItem => item.DateAdded)
+              </td>
+              <td>
+                  <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                  <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                  <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+              </td>
+          </tr>
+  }
+      </tbody>
+  </table>*@
