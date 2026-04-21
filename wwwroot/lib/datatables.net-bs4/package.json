@@ -25,6 +25,6 @@
     },
     "dependencies": {
         "jquery": ">=1.7",
-        "datatables.net": "1.10.22"
+        "datatables.net": "1.11.3"
     }
 }
