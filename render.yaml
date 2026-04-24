@@ -1,0 +1,33 @@
+# Render blueprint for MidgardAddressBook.
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: midgardaddressbook-web
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: midgardaddressbook-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: midgardaddressbook-redis
+          property: connectionString
+
+  - type: keyvalue
+    name: midgardaddressbook-redis
+    plan: free
+    ipAllowList: []
+
+databases:
+  - name: midgardaddressbook-postgres
+    plan: free
+    databaseName: midgard
+    user: midgard

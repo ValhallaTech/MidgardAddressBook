@@ -1,0 +1,71 @@
+@page "/"
+@rendermode InteractiveServer
+@inject IAddressBookService AddressBookService
+@inject NavigationManager Navigation
+
+<PageTitle>Address Book</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Address Book</h1>
+        <a class="btn btn-primary" href="/entries/new">+ New contact</a>
+    </div>
+
+    @if (entries is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else if (entries.Count == 0)
+    {
+        <div class="alert alert-info">No contacts yet. Create your first one.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>City, State</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var entry in entries)
+                    {
+                        <tr @key="entry.Id">
+                            <td>@entry.LastName, @entry.FirstName</td>
+                            <td>@entry.Email</td>
+                            <td>@entry.Phone</td>
+                            <td>@entry.City, @entry.State</td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-secondary" href="@($"/entries/{entry.Id}")">Edit</a>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        @onclick="() => DeleteAsync(entry.Id)">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private IReadOnlyList<AddressBookEntryDto>? entries;
+
+    protected override async Task OnInitializedAsync()
+    {
+        entries = await AddressBookService.GetAllAsync();
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        await AddressBookService.DeleteAsync(id);
+        entries = await AddressBookService.GetAllAsync();
+    }
+}
