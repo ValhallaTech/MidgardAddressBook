@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MidgardAddressBook.BLL/MidgardAddressBook.BLL.csproj" />
+    <Project Path="src/MidgardAddressBook.Core/MidgardAddressBook.Core.csproj" />
+    <Project Path="src/MidgardAddressBook.DAL/MidgardAddressBook.DAL.csproj" />
+    <Project Path="src/MidgardAddressBook.Web/MidgardAddressBook.Web.csproj" />
+  </Folder>
+</Solution>

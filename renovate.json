@@ -1,0 +1,36 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "schedule:weekly"
+  ],
+  "enabledManagers": [
+    "nuget",
+    "npm",
+    "dockerfile",
+    "docker-compose",
+    "github-actions"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["nuget"],
+      "groupName": ".NET NuGet packages",
+      "schedule": ["before 6am on monday"]
+    },
+    {
+      "matchManagers": ["npm"],
+      "groupName": "npm packages",
+      "schedule": ["before 6am on monday"]
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "schedule": ["before 6am on monday"]
+    },
+    {
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "groupName": "Docker base images",
+      "schedule": ["before 6am on monday"]
+    }
+  ]
+}

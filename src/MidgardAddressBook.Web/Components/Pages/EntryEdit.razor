@@ -1,0 +1,110 @@
+@page "/entries/new"
+@page "/entries/{Id:int}"
+@rendermode InteractiveServer
+@inject IAddressBookService AddressBookService
+@inject NavigationManager Navigation
+
+<PageTitle>@(IsNew ? "New contact" : "Edit contact")</PageTitle>
+
+<div class="container mt-4" style="max-width: 720px;">
+    <h1 class="h3 mb-3">@(IsNew ? "New contact" : "Edit contact")</h1>
+
+    @if (model is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <EditForm Model="model" OnValidSubmit="SaveAsync" FormName="entry-form">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">First name</label>
+                    <InputText class="form-control" @bind-Value="model.FirstName" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Last name</label>
+                    <InputText class="form-control" @bind-Value="model.LastName" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <InputText class="form-control" @bind-Value="model.Email" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Phone</label>
+                    <InputText class="form-control" @bind-Value="model.Phone" />
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Address 1</label>
+                    <InputText class="form-control" @bind-Value="model.Address1" />
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Address 2</label>
+                    <InputText class="form-control" @bind-Value="model.Address2" />
+                </div>
+
+                <div class="col-md-5">
+                    <label class="form-label">City</label>
+                    <InputText class="form-control" @bind-Value="model.City" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">State</label>
+                    <InputText class="form-control" @bind-Value="model.State" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">ZIP</label>
+                    <InputText class="form-control" @bind-Value="model.ZipCode" />
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a href="/" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    /// <summary>Route parameter: entry id. Null/0 means create.</summary>
+    [Parameter] public int? Id { get; set; }
+
+    private AddressBookEntryDto? model;
+
+    private bool IsNew => Id is null or 0;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsNew)
+        {
+            model = new AddressBookEntryDto();
+        }
+        else
+        {
+            model = await AddressBookService.GetByIdAsync(Id!.Value) ?? new AddressBookEntryDto();
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        if (model is null)
+        {
+            return;
+        }
+
+        if (IsNew)
+        {
+            await AddressBookService.CreateAsync(model);
+        }
+        else
+        {
+            await AddressBookService.UpdateAsync(model);
+        }
+
+        Navigation.NavigateTo("/");
+    }
+}
