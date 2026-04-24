@@ -32,7 +32,7 @@ databases:
   - name: midgardaddressbook-postgres
     plan: free
     region: ohio
-    databaseName: midgard_3e4q
+    databaseName: midgard
     user: midgard
     postgresMajorVersion: "18"
     ipAllowList:
