@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentMigrator.Runner;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -43,10 +44,12 @@ public static class MigrationRunnerExtensions
     /// <param name="serviceProvider">Root service provider.</param>
     /// <param name="maxAttempts">Maximum number of attempts before re-throwing. Defaults to 5.</param>
     /// <param name="retryDelay">Delay between attempts. Defaults to 10 seconds.</param>
-    public static void RunMidgardMigrations(
+    /// <param name="cancellationToken">Token used to cancel the retry loop.</param>
+    public static async Task RunMidgardMigrationsAsync(
         this IServiceProvider serviceProvider,
         int maxAttempts = 5,
-        TimeSpan? retryDelay = null)
+        TimeSpan? retryDelay = null,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(serviceProvider);
 
@@ -70,7 +73,7 @@ public static class MigrationRunnerExtensions
                     "Database migration failed on attempt {Attempt}/{MaxAttempts}. Retrying in {Delay}…",
                     attempt, maxAttempts, delay);
 
-                Thread.Sleep(delay);
+                await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
             }
         }
     }

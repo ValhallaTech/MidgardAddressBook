@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Npgsql;
 
 namespace MidgardAddressBook.DAL.Configuration;
@@ -159,9 +160,9 @@ public static class ConnectionStringTranslator
     }
 
     /// <summary>
-    /// Returns <c>true</c> when <paramref name="path"/> is a non-empty string that contains only
-    /// characters that are valid in a file-system path (no control characters), providing a basic
-    /// guard before assigning an externally-sourced value to
+    /// Returns <c>true</c> when <paramref name="path"/> is a non-empty string that contains no
+    /// characters that are invalid in a file-system path, providing a basic guard before
+    /// assigning an externally-sourced value to
     /// <see cref="NpgsqlConnectionStringBuilder.RootCertificate"/>.
     /// </summary>
     private static bool IsValidFilePath(string path)
@@ -171,14 +172,6 @@ public static class ConnectionStringTranslator
             return false;
         }
 
-        foreach (var c in path)
-        {
-            if (char.IsControl(c))
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return path.IndexOfAny(Path.GetInvalidPathChars()) < 0;
     }
 }

@@ -67,7 +67,7 @@ var app = builder.Build();
 // --- Run migrations at startup --------------------------------------------
 try
 {
-    app.Services.RunMidgardMigrations();
+    await app.Services.RunMidgardMigrationsAsync();
 }
 catch (Exception ex)
 {
