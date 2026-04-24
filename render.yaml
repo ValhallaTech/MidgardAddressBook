@@ -4,7 +4,7 @@ services:
   - type: web
     name: midgardaddressbook-web
     runtime: docker
-    plan: starter
+    plan: free
     region: ohio
     dockerfilePath: ./Dockerfile
     dockerContext: .
