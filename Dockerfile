@@ -3,12 +3,13 @@
 # ------------------------------------------------------------------
 # Stage 1: Build front-end assets (Bootstrap) with Node.
 # ------------------------------------------------------------------
-FROM node:22-alpine AS assets
+FROM node:24.15.0-alpine AS assets
 WORKDIR /src/web
-COPY src/MidgardAddressBook.Web/package.json src/MidgardAddressBook.Web/package-lock.json* ./
-RUN npm install --no-audit --no-fund
+RUN corepack enable && corepack prepare yarn@4.14.1 --activate
+COPY src/MidgardAddressBook.Web/package.json src/MidgardAddressBook.Web/yarn.lock* src/MidgardAddressBook.Web/.yarnrc.yml* ./
+RUN yarn install --immutable || yarn install
 COPY src/MidgardAddressBook.Web/build-assets.mjs ./
-RUN npm run build
+RUN yarn build
 
 # ------------------------------------------------------------------
 # Stage 2: Restore + build + publish the .NET solution.

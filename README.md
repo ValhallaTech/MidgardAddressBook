@@ -47,7 +47,8 @@ Key technology choices:
 ### Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- [Node.js 22+](https://nodejs.org/) (for Bootstrap asset build)
+- [Node.js 24.15.0](https://nodejs.org/) (for Bootstrap asset build)
+- [Yarn 4.14.1](https://yarnpkg.com/) (managed via Corepack; the npm package manager for this repo)
 - [Docker](https://www.docker.com/) and Docker Compose (recommended for local dev)
 
 ### Build locally
@@ -58,15 +59,17 @@ dotnet build MidgardAddressBook.slnx -c Release
 
 # Build front-end assets (Bootstrap) manually if you plan to `dotnet run` without Docker.
 cd src/MidgardAddressBook.Web
-npm install
-npm run build
+corepack enable
+corepack prepare yarn@4.14.1 --activate
+yarn install
+yarn build
 ```
 
 ## Usage
 
 ### Local dev via Docker Compose (recommended)
 
-`docker-compose.yml` stands up the Blazor app alongside PostgreSQL 16 and Redis 7 with named volumes:
+`docker-compose.yml` stands up the Blazor app alongside PostgreSQL 18.3 and Redis 7 with named volumes:
 
 ```bash
 docker compose up --build

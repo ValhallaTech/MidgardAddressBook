@@ -25,12 +25,14 @@
 
   <!--
     Ensure Bootstrap assets exist in wwwroot before publish. Set SkipNpmBuild=true to
-    suppress (e.g. when the Dockerfile already ran `npm run build` earlier in the pipeline).
+    suppress (e.g. when the Dockerfile already ran `yarn build` earlier in the pipeline).
   -->
-  <Target Name="NpmBuildAssets" BeforeTargets="PrepareForPublish"
+  <Target Name="YarnBuildAssets" BeforeTargets="PrepareForPublish"
           Condition="'$(SkipNpmBuild)' != 'true' and !Exists('wwwroot/css/bootstrap.min.css')">
-    <Exec Command="npm install --no-audit --no-fund" WorkingDirectory="$(MSBuildProjectDirectory)" />
-    <Exec Command="npm run build" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Exec Command="corepack enable" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Exec Command="corepack prepare yarn@4.14.1 --activate" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Exec Command="yarn install --immutable" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Exec Command="yarn build" WorkingDirectory="$(MSBuildProjectDirectory)" />
   </Target>
 
 </Project>
