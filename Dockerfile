@@ -42,6 +42,7 @@ RUN dotnet publish src/MidgardAddressBook.Web/MidgardAddressBook.Web.csproj \
 # ------------------------------------------------------------------
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends libgssapi-krb5-2 && rm -rf /var/lib/apt/lists/*
 COPY --from=build /app/publish ./
 
 # Render / PaaS injects $PORT; default to 8080 for local use.
