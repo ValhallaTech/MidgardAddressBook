@@ -4,6 +4,8 @@
     "config:recommended",
     "schedule:weekly"
   ],
+  "automerge": true,
+  "automergeType": "pr",
   "enabledManagers": [
     "nuget",
     "npm",
@@ -15,22 +17,26 @@
     {
       "matchManagers": ["nuget"],
       "groupName": ".NET NuGet packages",
-      "schedule": ["before 6am on monday"]
+      "schedule": ["before 6am on monday"],
+      "automerge": true
     },
     {
       "matchManagers": ["npm"],
       "groupName": "npm packages",
-      "schedule": ["before 6am on monday"]
+      "schedule": ["before 6am on monday"],
+      "automerge": true
     },
     {
       "matchManagers": ["github-actions"],
       "groupName": "GitHub Actions",
-      "schedule": ["before 6am on monday"]
+      "schedule": ["before 6am on monday"],
+      "automerge": true
     },
     {
       "matchManagers": ["dockerfile", "docker-compose"],
       "groupName": "Docker base images",
-      "schedule": ["before 6am on monday"]
+      "schedule": ["before 6am on monday"],
+      "automerge": true
     }
   ]
 }
