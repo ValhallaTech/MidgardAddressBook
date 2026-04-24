@@ -13,9 +13,10 @@ public static class ConnectionStringTranslator
     /// <summary>
     /// Converts a <c>postgres://</c> or <c>postgresql://</c> URL into an Npgsql connection string.
     /// If the input is already a key/value Npgsql connection string, it is returned unchanged.
+    /// Returns <c>null</c> if <paramref name="value"/> is null/empty or the URL is malformed.
     /// </summary>
     /// <param name="value">URL or Npgsql connection string.</param>
-    /// <returns>An Npgsql-compatible connection string, or <c>null</c> if <paramref name="value"/> is null/empty.</returns>
+    /// <returns>An Npgsql-compatible connection string, or <c>null</c> if <paramref name="value"/> is null/empty/malformed.</returns>
     public static string? ToNpgsqlConnectionString(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -30,10 +31,30 @@ public static class ConnectionStringTranslator
             return value;
         }
 
-        var uri = new Uri(value);
+        Uri uri;
+        try
+        {
+            uri = new Uri(value);
+        }
+        catch (Exception ex) when (ex is UriFormatException or ArgumentException)
+        {
+            return null;
+        }
+
         var userInfo = uri.UserInfo.Split(':', 2);
-        var username = Uri.UnescapeDataString(userInfo[0]);
-        var password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : string.Empty;
+        string username;
+        string password;
+        try
+        {
+            username = Uri.UnescapeDataString(userInfo[0]);
+            password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : string.Empty;
+        }
+        catch (Exception ex) when (ex is UriFormatException or ArgumentException)
+        {
+            username = userInfo[0];
+            password = userInfo.Length > 1 ? userInfo[1] : string.Empty;
+        }
+
         var database = uri.AbsolutePath.TrimStart('/');
 
         var sslMode = ParseSslModeFromQuery(uri.Query);
@@ -122,7 +143,9 @@ public static class ConnectionStringTranslator
 
     /// <summary>
     /// Returns the URL-decoded value of the first occurrence of <paramref name="key"/> in the
-    /// given query string, or <c>null</c> if not found.
+    /// given query string, or <c>null</c> if not found. If the value contains malformed
+    /// percent-encoding sequences (e.g. <c>%GG</c>), the raw (undecoded) value is returned
+    /// rather than throwing.
     /// </summary>
     private static string? ParseQueryParam(string? query, string key)
     {
@@ -160,18 +183,15 @@ public static class ConnectionStringTranslator
     }
 
     /// <summary>
-    /// Returns <c>true</c> when <paramref name="path"/> is a non-empty string that contains no
-    /// characters that are invalid in a file-system path, providing a basic guard before
-    /// assigning an externally-sourced value to
+    /// Returns <c>true</c> when <paramref name="path"/> is a rooted file-system path that refers
+    /// to an existing file, providing a meaningful guard before assigning an
+    /// externally-sourced value to
     /// <see cref="NpgsqlConnectionStringBuilder.RootCertificate"/>.
     /// </summary>
     private static bool IsValidFilePath(string path)
     {
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            return false;
-        }
-
-        return path.IndexOfAny(Path.GetInvalidPathChars()) < 0;
+        return !string.IsNullOrWhiteSpace(path)
+            && Path.IsPathRooted(path)
+            && File.Exists(path);
     }
 }

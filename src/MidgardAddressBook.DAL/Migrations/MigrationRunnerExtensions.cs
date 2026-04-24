@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FluentMigrator.Runner;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace MidgardAddressBook.DAL.Migrations;
 
@@ -39,11 +40,13 @@ public static class MigrationRunnerExtensions
     /// Runs all pending migrations using a scope-bound <see cref="IMigrationRunner"/>.
     /// Retries up to <paramref name="maxAttempts"/> times with a fixed delay between attempts
     /// to handle transient connectivity failures that can occur when the database service is
-    /// still starting up (e.g. first deploy on Render).
+    /// still starting up (e.g. first deploy on Render). Only transient
+    /// <see cref="NpgsqlException"/> failures trigger a retry; non-transient exceptions
+    /// (e.g. a broken migration script) propagate immediately.
     /// </summary>
     /// <param name="serviceProvider">Root service provider.</param>
-    /// <param name="maxAttempts">Maximum number of attempts before re-throwing. Defaults to 5.</param>
-    /// <param name="retryDelay">Delay between attempts. Defaults to 10 seconds.</param>
+    /// <param name="maxAttempts">Maximum number of attempts before re-throwing. Must be at least 1. Defaults to 5.</param>
+    /// <param name="retryDelay">Delay between attempts. Must be non-negative. Defaults to 10 seconds.</param>
     /// <param name="cancellationToken">Token used to cancel the retry loop.</param>
     public static async Task RunMidgardMigrationsAsync(
         this IServiceProvider serviceProvider,
@@ -52,8 +55,14 @@ public static class MigrationRunnerExtensions
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(serviceProvider);
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxAttempts, 1);
 
         var delay = retryDelay ?? TimeSpan.FromSeconds(10);
+        if (delay < TimeSpan.Zero)
+        {
+            throw new ArgumentOutOfRangeException(nameof(retryDelay), "Retry delay must be non-negative.");
+        }
+
         var logger = serviceProvider.GetRequiredService<ILoggerFactory>()
             .CreateLogger("MidgardAddressBook.DAL.Migrations");
 
@@ -66,7 +75,7 @@ public static class MigrationRunnerExtensions
                 runner.MigrateUp();
                 return;
             }
-            catch (Exception ex) when (attempt < maxAttempts)
+            catch (Exception ex) when (attempt < maxAttempts && IsTransientException(ex))
             {
                 logger.LogWarning(
                     ex,
@@ -76,5 +85,23 @@ public static class MigrationRunnerExtensions
                 await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
             }
         }
+    }
+
+    /// <summary>
+    /// Returns <c>true</c> when <paramref name="ex"/> (or any exception in its inner-exception
+    /// chain) is a transient <see cref="NpgsqlException"/> — i.e. one that is worth retrying,
+    /// such as a connection-refused or network-timeout failure during startup.
+    /// </summary>
+    private static bool IsTransientException(Exception ex)
+    {
+        for (var current = ex; current is not null; current = current.InnerException)
+        {
+            if (current is NpgsqlException { IsTransient: true })
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
