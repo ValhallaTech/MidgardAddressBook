@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Threading;
 using FluentMigrator.Runner;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -35,14 +36,42 @@ public static class MigrationRunnerExtensions
 
     /// <summary>
     /// Runs all pending migrations using a scope-bound <see cref="IMigrationRunner"/>.
-    /// Errors are logged and rethrown so startup fails fast on schema problems.
+    /// Retries up to <paramref name="maxAttempts"/> times with a fixed delay between attempts
+    /// to handle transient connectivity failures that can occur when the database service is
+    /// still starting up (e.g. first deploy on Render).
     /// </summary>
     /// <param name="serviceProvider">Root service provider.</param>
-    public static void RunMidgardMigrations(this IServiceProvider serviceProvider)
+    /// <param name="maxAttempts">Maximum number of attempts before re-throwing. Defaults to 5.</param>
+    /// <param name="retryDelay">Delay between attempts. Defaults to 10 seconds.</param>
+    public static void RunMidgardMigrations(
+        this IServiceProvider serviceProvider,
+        int maxAttempts = 5,
+        TimeSpan? retryDelay = null)
     {
         ArgumentNullException.ThrowIfNull(serviceProvider);
-        using var scope = serviceProvider.CreateScope();
-        var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
-        runner.MigrateUp();
+
+        var delay = retryDelay ?? TimeSpan.FromSeconds(10);
+        var logger = serviceProvider.GetRequiredService<ILoggerFactory>()
+            .CreateLogger("MidgardAddressBook.DAL.Migrations");
+
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                using var scope = serviceProvider.CreateScope();
+                var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
+                runner.MigrateUp();
+                return;
+            }
+            catch (Exception ex) when (attempt < maxAttempts)
+            {
+                logger.LogWarning(
+                    ex,
+                    "Database migration failed on attempt {Attempt}/{MaxAttempts}. Retrying in {Delay}…",
+                    attempt, maxAttempts, delay);
+
+                Thread.Sleep(delay);
+            }
+        }
     }
 }
