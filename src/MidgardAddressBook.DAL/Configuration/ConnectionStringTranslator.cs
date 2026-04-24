@@ -35,15 +35,23 @@ public static class ConnectionStringTranslator
         var password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : string.Empty;
         var database = uri.AbsolutePath.TrimStart('/');
 
+        var sslMode = ParseSslModeFromQuery(uri.Query);
+
         var builder = new NpgsqlConnectionStringBuilder
         {
             Host = uri.Host,
-            Port = uri.IsDefaultPort ? 5432 : uri.Port,
+            Port = uri.Port > 0 ? uri.Port : 5432,
             Username = username,
             Password = password,
             Database = database,
-            SslMode = SslMode.Prefer,
+            SslMode = sslMode,
         };
+
+        var sslRootCert = ParseQueryParam(uri.Query, "sslrootcert");
+        if (!string.IsNullOrEmpty(sslRootCert))
+        {
+            builder.RootCertificate = sslRootCert;
+        }
 
         return builder.ConnectionString;
     }
@@ -90,5 +98,55 @@ public static class ConnectionStringTranslator
         }
 
         return config;
+    }
+
+    /// <summary>
+    /// Parses the <c>sslmode</c> query parameter from a postgres URL query string and maps it to
+    /// the corresponding <see cref="SslMode"/>. Returns <see cref="SslMode.Prefer"/> when the
+    /// parameter is absent or unrecognised.
+    /// </summary>
+    private static SslMode ParseSslModeFromQuery(string? query)
+    {
+        var raw = ParseQueryParam(query, "sslmode");
+        return raw?.ToLowerInvariant() switch
+        {
+            "require" => SslMode.Require,
+            "verify-ca" => SslMode.VerifyCA,
+            "verify-full" => SslMode.VerifyFull,
+            "disable" => SslMode.Disable,
+            "allow" => SslMode.Allow,
+            _ => SslMode.Prefer,
+        };
+    }
+
+    /// <summary>
+    /// Returns the URL-decoded value of the first occurrence of <paramref name="key"/> in the
+    /// given query string, or <c>null</c> if not found.
+    /// </summary>
+    private static string? ParseQueryParam(string? query, string key)
+    {
+        if (string.IsNullOrEmpty(query))
+        {
+            return null;
+        }
+
+        var span = query.AsSpan().TrimStart('?');
+        foreach (var segment in span.Split('&'))
+        {
+            var part = span[segment];
+            var eq = part.IndexOf('=');
+            if (eq < 0)
+            {
+                continue;
+            }
+
+            var paramKey = part[..eq];
+            if (paramKey.Equals(key.AsSpan(), StringComparison.OrdinalIgnoreCase))
+            {
+                return Uri.UnescapeDataString(part[(eq + 1)..].ToString());
+            }
+        }
+
+        return null;
     }
 }
