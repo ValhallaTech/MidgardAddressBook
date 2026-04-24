@@ -5,6 +5,7 @@ services:
     name: midgardaddressbook-web
     runtime: docker
     plan: starter
+    region: ohio
     dockerfilePath: ./Dockerfile
     dockerContext: .
     healthCheckPath: /
@@ -24,10 +25,16 @@ services:
   - type: keyvalue
     name: midgardaddressbook-redis
     plan: free
+    region: ohio
     ipAllowList: []
 
 databases:
   - name: midgardaddressbook-postgres
     plan: free
-    databaseName: midgard
+    region: ohio
+    databaseName: midgard_3e4q
     user: midgard
+    postgresMajorVersion: "18"
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: everywhere
