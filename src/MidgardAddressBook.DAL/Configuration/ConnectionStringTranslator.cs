@@ -48,7 +48,7 @@ public static class ConnectionStringTranslator
         };
 
         var sslRootCert = ParseQueryParam(uri.Query, "sslrootcert");
-        if (!string.IsNullOrEmpty(sslRootCert))
+        if (!string.IsNullOrEmpty(sslRootCert) && IsValidFilePath(sslRootCert))
         {
             builder.RootCertificate = sslRootCert;
         }
@@ -143,10 +143,42 @@ public static class ConnectionStringTranslator
             var paramKey = part[..eq];
             if (paramKey.Equals(key.AsSpan(), StringComparison.OrdinalIgnoreCase))
             {
-                return Uri.UnescapeDataString(part[(eq + 1)..].ToString());
+                var rawValue = part[(eq + 1)..].ToString();
+                try
+                {
+                    return Uri.UnescapeDataString(rawValue);
+                }
+                catch (Exception ex) when (ex is UriFormatException or ArgumentException)
+                {
+                    return rawValue;
+                }
             }
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Returns <c>true</c> when <paramref name="path"/> is a non-empty string that contains only
+    /// characters that are valid in a file-system path (no control characters), providing a basic
+    /// guard before assigning an externally-sourced value to
+    /// <see cref="NpgsqlConnectionStringBuilder.RootCertificate"/>.
+    /// </summary>
+    private static bool IsValidFilePath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        foreach (var c in path)
+        {
+            if (char.IsControl(c))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
