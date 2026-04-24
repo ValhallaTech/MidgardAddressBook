@@ -6,8 +6,8 @@
 FROM node:24.15.0-alpine AS assets
 WORKDIR /src/web
 RUN corepack enable && corepack prepare yarn@4.14.1 --activate
-COPY src/MidgardAddressBook.Web/package.json src/MidgardAddressBook.Web/yarn.lock* src/MidgardAddressBook.Web/.yarnrc.yml* ./
-RUN yarn install --immutable || yarn install
+COPY src/MidgardAddressBook.Web/package.json src/MidgardAddressBook.Web/yarn.lock src/MidgardAddressBook.Web/.yarnrc.yml ./
+RUN yarn install --immutable
 COPY src/MidgardAddressBook.Web/build-assets.mjs ./
 RUN yarn build
 
@@ -35,7 +35,7 @@ COPY --from=assets /src/web/wwwroot/js/  src/MidgardAddressBook.Web/wwwroot/js/
 RUN dotnet publish src/MidgardAddressBook.Web/MidgardAddressBook.Web.csproj \
     -c Release \
     -o /app/publish \
-    /p:SkipNpmBuild=true
+    /p:SkipYarnBuild=true
 
 # ------------------------------------------------------------------
 # Stage 3: Runtime image.

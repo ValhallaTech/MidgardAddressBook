@@ -21,10 +21,10 @@ builder.Host.UseSerilog((context, services, loggerConfig) => loggerConfig
 // --- Kestrel / $PORT binding ----------------------------------------------
 // Render and many PaaS providers inject PORT. Fall back to 8080 for local dev.
 var portEnv = Environment.GetEnvironmentVariable("PORT");
-if (!string.IsNullOrWhiteSpace(portEnv) && int.TryParse(portEnv, out var port))
-{
-    builder.WebHost.ConfigureKestrel(options => options.ListenAnyIP(port));
-}
+var port = !string.IsNullOrWhiteSpace(portEnv) && int.TryParse(portEnv, out var configuredPort)
+    ? configuredPort
+    : 8080;
+builder.WebHost.ConfigureKestrel(options => options.ListenAnyIP(port));
 
 // --- Connection strings (DATABASE_URL, REDIS_URL) --------------------------
 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL")
@@ -36,19 +36,19 @@ var postgresConnectionString = ConnectionStringTranslator.ToNpgsqlConnectionStri
     ?? throw new InvalidOperationException(
         "DATABASE_URL (or ConnectionStrings:Postgres) must be set to a valid Postgres connection.");
 
-var redisConfiguration = ConnectionStringTranslator.ToRedisConfiguration(redisUrl)
+var redisConnectionString = ConnectionStringTranslator.ToRedisConfiguration(redisUrl)
     ?? throw new InvalidOperationException(
         "REDIS_URL (or ConnectionStrings:Redis) must be set to a valid Redis configuration.");
 
 builder.Services.Configure<DataOptions>(options =>
 {
     options.PostgresConnectionString = postgresConnectionString;
-    options.RedisConnectionString = redisConfiguration;
+    options.RedisConnectionString = redisConnectionString;
 });
 
 // --- Redis multiplexer (singleton) ----------------------------------------
 builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
-    ConnectionMultiplexer.Connect(redisConfiguration));
+    ConnectionMultiplexer.Connect(redisConnectionString));
 
 // --- FluentMigrator -------------------------------------------------------
 builder.Services.AddMidgardMigrations(postgresConnectionString);

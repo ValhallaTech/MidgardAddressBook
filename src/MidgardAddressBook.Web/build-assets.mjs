@@ -1,5 +1,5 @@
 // Copies Bootstrap 5.3 CSS + JS bundle from node_modules into wwwroot/.
-// Invoked by `npm run build` and from the Dockerfile build stage.
+// Invoked by `yarn build` and from the Dockerfile build stage.
 import { mkdirSync, copyFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';

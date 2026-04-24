@@ -53,8 +53,7 @@ public class RedisCacheService : ICacheService
         try
         {
             var payload = JsonSerializer.Serialize(value, SerializerOptions);
-            var expiration = ttl.HasValue ? new Expiration(ttl.Value) : Expiration.Persist;
-            await GetDatabase().StringSetAsync(key, payload, expiration).ConfigureAwait(false);
+            await GetDatabase().StringSetAsync(key, payload, ttl, When.Always).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is RedisException or JsonException)
         {
