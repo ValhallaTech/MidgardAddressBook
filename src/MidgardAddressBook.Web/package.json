@@ -12,6 +12,6 @@
     "clean": "node -e \"const fs=require('fs');for(const f of ['wwwroot/css/bootstrap.min.css','wwwroot/css/bootstrap.min.css.map','wwwroot/js/bootstrap.bundle.min.js','wwwroot/js/bootstrap.bundle.min.js.map']){try{fs.unlinkSync(f)}catch{}}\""
   },
   "devDependencies": {
-    "bootstrap": "5.3.3"
+    "bootstrap": "5.3.8"
   }
 }
