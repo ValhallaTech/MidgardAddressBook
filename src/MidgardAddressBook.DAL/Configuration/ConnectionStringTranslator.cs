@@ -24,8 +24,10 @@ public static class ConnectionStringTranslator
             return null;
         }
 
-        if (!value.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase)
-            && !value.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+        if (
+            !value.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase)
+            && !value.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase)
+        )
         {
             // Assume it is already a key/value Npgsql connection string.
             return value;
@@ -107,7 +109,10 @@ public static class ConnectionStringTranslator
         if (!string.IsNullOrEmpty(uri.UserInfo))
         {
             var parts = uri.UserInfo.Split(':', 2);
-            var password = parts.Length > 1 ? Uri.UnescapeDataString(parts[1]) : Uri.UnescapeDataString(parts[0]);
+            var password =
+                parts.Length > 1
+                    ? Uri.UnescapeDataString(parts[1])
+                    : Uri.UnescapeDataString(parts[0]);
             if (!string.IsNullOrEmpty(password))
             {
                 config += $",password={password}";
@@ -190,8 +195,6 @@ public static class ConnectionStringTranslator
     /// </summary>
     private static bool IsValidFilePath(string path)
     {
-        return !string.IsNullOrWhiteSpace(path)
-            && Path.IsPathRooted(path)
-            && File.Exists(path);
+        return !string.IsNullOrWhiteSpace(path) && Path.IsPathRooted(path) && File.Exists(path);
     }
 }

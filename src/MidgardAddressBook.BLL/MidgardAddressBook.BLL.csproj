@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <ItemGroup>
     <ProjectReference Include="..\MidgardAddressBook.Core\MidgardAddressBook.Core.csproj" />
     <ProjectReference Include="..\MidgardAddressBook.DAL\MidgardAddressBook.DAL.csproj" />
@@ -7,7 +6,10 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.1.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7" />
+    <PackageReference
+      Include="Microsoft.Extensions.DependencyInjection.Abstractions"
+      Version="10.0.7"
+    />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
   </ItemGroup>
 
@@ -16,5 +18,4 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
 </Project>

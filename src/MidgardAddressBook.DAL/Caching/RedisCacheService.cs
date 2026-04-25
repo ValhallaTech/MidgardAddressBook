@@ -14,7 +14,9 @@ namespace MidgardAddressBook.DAL.Caching;
 /// </summary>
 public class RedisCacheService : ICacheService
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions SerializerOptions = new(
+        JsonSerializerDefaults.Web
+    );
     private readonly IConnectionMultiplexer _multiplexer;
     private readonly ILogger<RedisCacheService> _logger;
 
@@ -28,7 +30,8 @@ public class RedisCacheService : ICacheService
     private IDatabase GetDatabase() => _multiplexer.GetDatabase();
 
     /// <inheritdoc />
-    public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default) where T : class
+    public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
+        where T : class
     {
         try
         {
@@ -48,16 +51,28 @@ public class RedisCacheService : ICacheService
     }
 
     /// <inheritdoc />
-    public async Task SetAsync<T>(string key, T value, TimeSpan? ttl = null, CancellationToken cancellationToken = default) where T : class
+    public async Task SetAsync<T>(
+        string key,
+        T value,
+        TimeSpan? ttl = null,
+        CancellationToken cancellationToken = default
+    )
+        where T : class
     {
         try
         {
             var payload = JsonSerializer.Serialize(value, SerializerOptions);
-            await GetDatabase().StringSetAsync(key, payload, ttl, When.Always).ConfigureAwait(false);
+            await GetDatabase()
+                .StringSetAsync(key, payload, ttl, When.Always)
+                .ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is RedisException or JsonException)
         {
-            _logger.LogWarning(ex, "Redis SET failed for key {CacheKey}; continuing without caching.", key);
+            _logger.LogWarning(
+                ex,
+                "Redis SET failed for key {CacheKey}; continuing without caching.",
+                key
+            );
         }
     }
 

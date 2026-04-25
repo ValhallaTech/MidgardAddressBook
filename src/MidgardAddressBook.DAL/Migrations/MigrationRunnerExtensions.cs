@@ -21,16 +21,22 @@ public static class MigrationRunnerExtensions
     /// <param name="services">The service collection to configure.</param>
     /// <param name="postgresConnectionString">Npgsql connection string to migrate against.</param>
     /// <returns>The same <see cref="IServiceCollection"/> for chaining.</returns>
-    public static IServiceCollection AddMidgardMigrations(this IServiceCollection services, string postgresConnectionString)
+    public static IServiceCollection AddMidgardMigrations(
+        this IServiceCollection services,
+        string postgresConnectionString
+    )
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentException.ThrowIfNullOrWhiteSpace(postgresConnectionString);
 
-        services.AddFluentMigratorCore()
-            .ConfigureRunner(rb => rb
-                .AddPostgres()
-                .WithGlobalConnectionString(postgresConnectionString)
-                .ScanIn(Assembly.GetExecutingAssembly()).For.Migrations())
+        services
+            .AddFluentMigratorCore()
+            .ConfigureRunner(rb =>
+                rb.AddPostgres()
+                    .WithGlobalConnectionString(postgresConnectionString)
+                    .ScanIn(Assembly.GetExecutingAssembly())
+                    .For.Migrations()
+            )
             .AddLogging(lb => lb.AddFluentMigratorConsole());
 
         return services;
@@ -52,7 +58,8 @@ public static class MigrationRunnerExtensions
         this IServiceProvider serviceProvider,
         int maxAttempts = 5,
         TimeSpan? retryDelay = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         ArgumentNullException.ThrowIfNull(serviceProvider);
         ArgumentOutOfRangeException.ThrowIfLessThan(maxAttempts, 1);
@@ -60,10 +67,14 @@ public static class MigrationRunnerExtensions
         var delay = retryDelay ?? TimeSpan.FromSeconds(10);
         if (delay < TimeSpan.Zero)
         {
-            throw new ArgumentOutOfRangeException(nameof(retryDelay), "Retry delay must be non-negative.");
+            throw new ArgumentOutOfRangeException(
+                nameof(retryDelay),
+                "Retry delay must be non-negative."
+            );
         }
 
-        var logger = serviceProvider.GetRequiredService<ILoggerFactory>()
+        var logger = serviceProvider
+            .GetRequiredService<ILoggerFactory>()
             .CreateLogger("MidgardAddressBook.DAL.Migrations");
 
         for (var attempt = 1; attempt <= maxAttempts; attempt++)
@@ -80,7 +91,10 @@ public static class MigrationRunnerExtensions
                 logger.LogWarning(
                     ex,
                     "Database migration failed on attempt {Attempt}/{MaxAttempts}. Retrying in {Delay}…",
-                    attempt, maxAttempts, delay);
+                    attempt,
+                    maxAttempts,
+                    delay
+                );
 
                 await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
             }

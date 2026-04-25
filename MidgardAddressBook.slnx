@@ -5,4 +5,10 @@
     <Project Path="src/MidgardAddressBook.DAL/MidgardAddressBook.DAL.csproj" />
     <Project Path="src/MidgardAddressBook.Web/MidgardAddressBook.Web.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MidgardAddressBook.BLL.Tests/MidgardAddressBook.BLL.Tests.csproj" />
+    <Project Path="tests/MidgardAddressBook.Core.Tests/MidgardAddressBook.Core.Tests.csproj" />
+    <Project Path="tests/MidgardAddressBook.DAL.Tests/MidgardAddressBook.DAL.Tests.csproj" />
+    <Project Path="tests/MidgardAddressBook.Web.Tests/MidgardAddressBook.Web.Tests.csproj" />
+  </Folder>
 </Solution>

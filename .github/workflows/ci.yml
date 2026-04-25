@@ -30,8 +30,17 @@ jobs:
           corepack enable
           corepack prepare yarn@4.14.1 --activate
 
+      - name: Restore .NET local tools
+        run: dotnet tool restore
+
+      - name: CSharpier format check
+        run: dotnet csharpier check .
+
       - name: Restore
         run: dotnet restore MidgardAddressBook.slnx
 
       - name: Build
         run: dotnet build MidgardAddressBook.slnx -c Release --no-restore
+
+      - name: Test
+        run: dotnet test MidgardAddressBook.slnx -c Release --no-build --no-restore
