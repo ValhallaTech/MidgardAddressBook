@@ -89,14 +89,20 @@
     {
         if (IsNew)
         {
-            // Leave Model as-is: either the default new() on initial GET,
-            // or the form-posted value rehydrated by [SupplyParameterFromForm].
+            // Reset when the same component instance is reused after navigating from an edit
+            // route to the "new" route (e.g., /entries/5 → /entries/new).
+            if (Model.Id != 0)
+            {
+                Model = new AddressBookEntryDto();
+            }
             return;
         }
 
-        // Edit mode: only load from the service on the initial GET.
-        // On a form post, Model.Id will be populated from the posted payload, so skip the reload.
-        if (Model.Id == 0)
+        // Edit mode: load from the service on the initial GET, or whenever the route parameter
+        // changes (e.g., navigating /entries/5 → /entries/6 reuses the same component instance).
+        // On a form post, Model.Id equals the posted id, so the condition is false and the reload
+        // is correctly skipped.
+        if (Model.Id != Id!.Value)
         {
             Model = await AddressBookService.GetByIdAsync(Id!.Value) ?? new AddressBookEntryDto { Id = Id!.Value };
         }
