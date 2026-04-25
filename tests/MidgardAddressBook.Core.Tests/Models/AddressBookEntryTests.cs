@@ -50,4 +50,23 @@ public class AddressBookEntryTests
         entry.LastName.Should().Be("Odinson");
         entry.Email.Should().Be("thor@asgard.realm");
     }
+
+    [Fact]
+    public void OptionalProperties_RoundTrip()
+    {
+        var avatar = new byte[] { 1, 2, 3, 4 };
+        var added = new System.DateTimeOffset(2024, 4, 24, 0, 0, 0, System.TimeSpan.Zero);
+        var entry = new AddressBookEntry
+        {
+            Address2 = "Suite 9",
+            Avatar = avatar,
+            FileName = "thor.png",
+            DateAdded = added,
+        };
+
+        entry.Address2.Should().Be("Suite 9");
+        entry.Avatar.Should().BeSameAs(avatar);
+        entry.FileName.Should().Be("thor.png");
+        entry.DateAdded.Should().Be(added);
+    }
 }

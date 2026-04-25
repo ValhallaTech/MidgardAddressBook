@@ -2,4 +2,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\MidgardAddressBook.DAL\MidgardAddressBook.DAL.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
+  </ItemGroup>
 </Project>

@@ -32,6 +32,7 @@ public class AddressBookServiceTests
     {
         var repo = new Mock<IAddressBookEntryRepository>();
         repo.Setup(r => r.CreateAsync(It.IsAny<AddressBookEntry>(), It.IsAny<CancellationToken>()))
+            .Callback<AddressBookEntry, CancellationToken>((entry, _) => entry.Id = 7)
             .ReturnsAsync(7);
         var cache = new Mock<ICacheService>();
         var service = new AddressBookService(

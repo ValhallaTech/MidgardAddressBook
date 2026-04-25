@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <!--
+    Coverlet runsettings for dotnet test ... settings coverlet.runsettings.
+    Excludes files that cannot be covered without live infrastructure or that are pure
+    composition root wireup exercised only at app startup.
+  -->
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <ExcludeByFile>**/MidgardAddressBook.Web/Program.cs,**/MidgardAddressBook.Web/DependencyInjection/ApplicationModule.cs,**/MidgardAddressBook.DAL/Repositories/AddressBookEntryRepository.cs,**/MidgardAddressBook.DAL/Migrations/M202404240001_CreateAddressBookEntries.cs,**/*.g.cs,**/*.razor.g.cs</ExcludeByFile>
+          <Exclude>[xunit.*]*,[*.Tests]*</Exclude>
+          <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
+          <UseSourceLink>true</UseSourceLink>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
