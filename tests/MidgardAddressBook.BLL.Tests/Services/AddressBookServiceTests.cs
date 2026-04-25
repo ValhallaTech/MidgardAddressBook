@@ -56,6 +56,7 @@ public class AddressBookServiceTests
         var result = await service.CreateAsync(dto);
 
         result.Should().NotBeNull();
+        result.Id.Should().Be(7);
         result.FirstName.Should().Be("Freya");
         repo.Verify(
             r =>
