@@ -125,6 +125,16 @@ public class RedisCacheServiceTests
         RedisValue captured = default;
         TimeSpan? capturedTtl = null;
         When capturedWhen = When.NotExists;
+
+        void Capture(RedisValue v, TimeSpan? ttl, When w)
+        {
+            captured = v;
+            capturedTtl = ttl;
+            capturedWhen = w;
+        }
+
+        // Cover both the 4-arg overload and the 5-arg (CommandFlags) overload so
+        // the test remains valid regardless of which overload the SUT resolves to.
         db.Setup(d =>
                 d.StringSetAsync(
                     It.IsAny<RedisKey>(),
@@ -133,13 +143,19 @@ public class RedisCacheServiceTests
                     It.IsAny<When>()
                 )
             )
-            .Callback<RedisKey, RedisValue, TimeSpan?, When>(
-                (_, v, ttl, w) =>
-                {
-                    captured = v;
-                    capturedTtl = ttl;
-                    capturedWhen = w;
-                }
+            .Callback<RedisKey, RedisValue, TimeSpan?, When>((_, v, ttl, w) => Capture(v, ttl, w))
+            .ReturnsAsync(true);
+        db.Setup(d =>
+                d.StringSetAsync(
+                    It.IsAny<RedisKey>(),
+                    It.IsAny<RedisValue>(),
+                    It.IsAny<TimeSpan?>(),
+                    It.IsAny<When>(),
+                    It.IsAny<CommandFlags>()
+                )
+            )
+            .Callback<RedisKey, RedisValue, TimeSpan?, When, CommandFlags>(
+                (_, v, ttl, w, _) => Capture(v, ttl, w)
             )
             .ReturnsAsync(true);
 
@@ -161,6 +177,16 @@ public class RedisCacheServiceTests
                     It.IsAny<RedisValue>(),
                     It.IsAny<TimeSpan?>(),
                     It.IsAny<When>()
+                )
+            )
+            .ThrowsAsync(new RedisConnectionException(ConnectionFailureType.SocketFailure, "x"));
+        db.Setup(d =>
+                d.StringSetAsync(
+                    It.IsAny<RedisKey>(),
+                    It.IsAny<RedisValue>(),
+                    It.IsAny<TimeSpan?>(),
+                    It.IsAny<When>(),
+                    It.IsAny<CommandFlags>()
                 )
             )
             .ThrowsAsync(new RedisConnectionException(ConnectionFailureType.SocketFailure, "x"));

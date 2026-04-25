@@ -75,19 +75,16 @@ public class ConnectionStringTranslatorEdgeCaseTests
     }
 
     [Fact]
-    public void ToNpgsqlConnectionString_ReturnsNull_OnUnparseableUrl()
+    public void ToNpgsqlConnectionString_DoesNotThrow_OnMalformedUrl()
     {
-        // A scheme-prefixed but malformed URL should return null rather than throw.
-        // Note: System.Uri tolerates many oddities; we use a percent-encoding form
-        // that cannot be parsed.
-        var result = ConnectionStringTranslator.ToNpgsqlConnectionString("postgres://%");
+        // Contract under test: the translator must never throw for a malformed
+        // scheme-prefixed URL — it returns either null or a sanitized connection
+        // string. System.Uri tolerates many oddities (e.g. "postgres://%"), so we
+        // only assert non-throwing behavior and that no raw '%' leaks through.
+        var act = () => ConnectionStringTranslator.ToNpgsqlConnectionString("postgres://%");
 
-        // System.Uri tolerates "postgres://%" (treats it as a host). It's ok if this
-        // round-trips successfully — we just don't want it to throw.
-        // The function contract: returns string-or-null without throwing.
-        (result ?? string.Empty)
-            .Should()
-            .NotContain("%");
+        var result = act.Should().NotThrow().Subject;
+        (result ?? string.Empty).Should().NotContain("%");
     }
 
     [Theory]
