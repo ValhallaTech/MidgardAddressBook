@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
   <ItemGroup>
     <ProjectReference Include="..\MidgardAddressBook.Core\MidgardAddressBook.Core.csproj" />
     <ProjectReference Include="..\MidgardAddressBook.BLL\MidgardAddressBook.BLL.csproj" />
@@ -29,12 +28,17 @@
     Runs whenever *any* expected Bootstrap output is missing, so a partial/corrupted
     asset set is always rebuilt.
   -->
-  <Target Name="YarnBuildAssets" BeforeTargets="PrepareForPublish"
-          Condition="'$(SkipYarnBuild)' != 'true' and ('$(SkipNpmBuild)' != 'true') and (!Exists('wwwroot/css/bootstrap.min.css') or !Exists('wwwroot/css/bootstrap.min.css.map') or !Exists('wwwroot/js/bootstrap.bundle.min.js') or !Exists('wwwroot/js/bootstrap.bundle.min.js.map'))">
+  <Target
+    Name="YarnBuildAssets"
+    BeforeTargets="PrepareForPublish"
+    Condition="'$(SkipYarnBuild)' != 'true' and ('$(SkipNpmBuild)' != 'true') and (!Exists('wwwroot/css/bootstrap.min.css') or !Exists('wwwroot/css/bootstrap.min.css.map') or !Exists('wwwroot/js/bootstrap.bundle.min.js') or !Exists('wwwroot/js/bootstrap.bundle.min.js.map'))"
+  >
     <Exec Command="corepack enable" WorkingDirectory="$(MSBuildProjectDirectory)" />
-    <Exec Command="corepack prepare yarn@4.14.1 --activate" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Exec
+      Command="corepack prepare yarn@4.14.1 --activate"
+      WorkingDirectory="$(MSBuildProjectDirectory)"
+    />
     <Exec Command="yarn install --immutable" WorkingDirectory="$(MSBuildProjectDirectory)" />
     <Exec Command="yarn build" WorkingDirectory="$(MSBuildProjectDirectory)" />
   </Target>
-
 </Project>

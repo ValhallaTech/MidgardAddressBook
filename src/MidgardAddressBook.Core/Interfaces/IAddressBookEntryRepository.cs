@@ -11,7 +11,9 @@ namespace MidgardAddressBook.Core.Interfaces;
 public interface IAddressBookEntryRepository
 {
     /// <summary>Returns all entries ordered by last name, first name.</summary>
-    Task<IReadOnlyList<AddressBookEntry>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AddressBookEntry>> GetAllAsync(
+        CancellationToken cancellationToken = default
+    );
 
     /// <summary>Returns a single entry or <c>null</c> if not found.</summary>
     Task<AddressBookEntry?> GetByIdAsync(int id, CancellationToken cancellationToken = default);

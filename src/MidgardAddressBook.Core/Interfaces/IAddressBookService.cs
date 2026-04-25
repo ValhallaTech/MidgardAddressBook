@@ -11,13 +11,18 @@ namespace MidgardAddressBook.Core.Interfaces;
 public interface IAddressBookService
 {
     /// <summary>Lists all entries (may be served from cache).</summary>
-    Task<IReadOnlyList<AddressBookEntryDto>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AddressBookEntryDto>> GetAllAsync(
+        CancellationToken cancellationToken = default
+    );
 
     /// <summary>Loads a single entry.</summary>
     Task<AddressBookEntryDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
     /// <summary>Creates a new entry and returns the persisted DTO (with generated id/DateAdded).</summary>
-    Task<AddressBookEntryDto> CreateAsync(AddressBookEntryDto dto, CancellationToken cancellationToken = default);
+    Task<AddressBookEntryDto> CreateAsync(
+        AddressBookEntryDto dto,
+        CancellationToken cancellationToken = default
+    );
 
     /// <summary>Updates an existing entry.</summary>
     Task<bool> UpdateAsync(AddressBookEntryDto dto, CancellationToken cancellationToken = default);

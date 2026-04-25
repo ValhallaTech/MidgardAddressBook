@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MidgardAddressBook.Web\MidgardAddressBook.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="bunit" Version="1.40.0" />
+  </ItemGroup>
+</Project>

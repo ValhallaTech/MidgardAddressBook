@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
-using AutoMapper.Contrib.Autofac.DependencyInjection;
 using Autofac;
+using AutoMapper.Contrib.Autofac.DependencyInjection;
 using MidgardAddressBook.BLL.Mapping;
 using MidgardAddressBook.BLL.Services;
 using MidgardAddressBook.Core.Interfaces;
@@ -21,17 +21,17 @@ public class ApplicationModule : Autofac.Module
         ArgumentNullException.ThrowIfNull(builder);
 
         // Repositories
-        builder.RegisterType<AddressBookEntryRepository>()
+        builder
+            .RegisterType<AddressBookEntryRepository>()
             .As<IAddressBookEntryRepository>()
             .InstancePerLifetimeScope();
 
         // Caching
-        builder.RegisterType<RedisCacheService>()
-            .As<ICacheService>()
-            .SingleInstance();
+        builder.RegisterType<RedisCacheService>().As<ICacheService>().SingleInstance();
 
         // Services
-        builder.RegisterType<AddressBookService>()
+        builder
+            .RegisterType<AddressBookService>()
             .As<IAddressBookService>()
             .InstancePerLifetimeScope();
 

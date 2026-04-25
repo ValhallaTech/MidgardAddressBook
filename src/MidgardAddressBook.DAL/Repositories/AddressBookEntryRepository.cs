@@ -30,38 +30,51 @@ public class AddressBookEntryRepository : IAddressBookEntryRepository
     private IDbConnection CreateConnection() => new NpgsqlConnection(_connectionString);
 
     private const string SelectColumns =
-        "id AS Id, first_name AS FirstName, last_name AS LastName, email AS Email, " +
-        "avatar AS Avatar, file_name AS FileName, address1 AS Address1, address2 AS Address2, " +
-        "state AS State, city AS City, zip_code AS ZipCode, phone AS Phone, date_added AS DateAdded";
+        "id AS Id, first_name AS FirstName, last_name AS LastName, email AS Email, "
+        + "avatar AS Avatar, file_name AS FileName, address1 AS Address1, address2 AS Address2, "
+        + "state AS State, city AS City, zip_code AS ZipCode, phone AS Phone, date_added AS DateAdded";
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<AddressBookEntry>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<AddressBookEntry>> GetAllAsync(
+        CancellationToken cancellationToken = default
+    )
     {
         using var connection = CreateConnection();
         var command = new CommandDefinition(
             $"SELECT {SelectColumns} FROM address_book_entries ORDER BY last_name, first_name",
-            cancellationToken: cancellationToken);
+            cancellationToken: cancellationToken
+        );
         var rows = await connection.QueryAsync<AddressBookEntry>(command).ConfigureAwait(false);
         return [.. rows];
     }
 
     /// <inheritdoc />
-    public async Task<AddressBookEntry?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<AddressBookEntry?> GetByIdAsync(
+        int id,
+        CancellationToken cancellationToken = default
+    )
     {
         using var connection = CreateConnection();
         var command = new CommandDefinition(
             $"SELECT {SelectColumns} FROM address_book_entries WHERE id = @Id",
             new { Id = id },
-            cancellationToken: cancellationToken);
-        return await connection.QuerySingleOrDefaultAsync<AddressBookEntry>(command).ConfigureAwait(false);
+            cancellationToken: cancellationToken
+        );
+        return await connection
+            .QuerySingleOrDefaultAsync<AddressBookEntry>(command)
+            .ConfigureAwait(false);
     }
 
     /// <inheritdoc />
-    public async Task<int> CreateAsync(AddressBookEntry entry, CancellationToken cancellationToken = default)
+    public async Task<int> CreateAsync(
+        AddressBookEntry entry,
+        CancellationToken cancellationToken = default
+    )
     {
         ArgumentNullException.ThrowIfNull(entry);
         using var connection = CreateConnection();
-        const string sql = @"
+        const string sql =
+            @"
 INSERT INTO address_book_entries
     (first_name, last_name, email, avatar, file_name, address1, address2, state, city, zip_code, phone, date_added)
 VALUES
@@ -74,11 +87,15 @@ RETURNING id;";
     }
 
     /// <inheritdoc />
-    public async Task<bool> UpdateAsync(AddressBookEntry entry, CancellationToken cancellationToken = default)
+    public async Task<bool> UpdateAsync(
+        AddressBookEntry entry,
+        CancellationToken cancellationToken = default
+    )
     {
         ArgumentNullException.ThrowIfNull(entry);
         using var connection = CreateConnection();
-        const string sql = @"
+        const string sql =
+            @"
 UPDATE address_book_entries SET
     first_name = @FirstName,
     last_name  = @LastName,
@@ -104,7 +121,8 @@ WHERE id = @Id;";
         var command = new CommandDefinition(
             "DELETE FROM address_book_entries WHERE id = @Id",
             new { Id = id },
-            cancellationToken: cancellationToken);
+            cancellationToken: cancellationToken
+        );
         var rows = await connection.ExecuteAsync(command).ConfigureAwait(false);
         return rows > 0;
     }

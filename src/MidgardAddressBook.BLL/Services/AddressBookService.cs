@@ -29,7 +29,8 @@ public class AddressBookService : IAddressBookService
         IAddressBookEntryRepository repository,
         ICacheService cache,
         IMapper mapper,
-        ILogger<AddressBookService> logger)
+        ILogger<AddressBookService> logger
+    )
     {
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
@@ -38,30 +39,45 @@ public class AddressBookService : IAddressBookService
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<AddressBookEntryDto>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<AddressBookEntryDto>> GetAllAsync(
+        CancellationToken cancellationToken = default
+    )
     {
-        var cached = await _cache.GetAsync<CachedList>(ListCacheKey, cancellationToken).ConfigureAwait(false);
+        var cached = await _cache
+            .GetAsync<CachedList>(ListCacheKey, cancellationToken)
+            .ConfigureAwait(false);
         if (cached is not null)
         {
-            _logger.LogDebug("AddressBook list served from cache ({Count} rows).", cached.Items.Count);
+            _logger.LogDebug(
+                "AddressBook list served from cache ({Count} rows).",
+                cached.Items.Count
+            );
             return cached.Items;
         }
 
         var entries = await _repository.GetAllAsync(cancellationToken).ConfigureAwait(false);
         var dtos = _mapper.Map<IReadOnlyList<AddressBookEntryDto>>(entries);
-        await _cache.SetAsync(ListCacheKey, new CachedList(dtos), ListCacheTtl, cancellationToken).ConfigureAwait(false);
+        await _cache
+            .SetAsync(ListCacheKey, new CachedList(dtos), ListCacheTtl, cancellationToken)
+            .ConfigureAwait(false);
         return dtos;
     }
 
     /// <inheritdoc />
-    public async Task<AddressBookEntryDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<AddressBookEntryDto?> GetByIdAsync(
+        int id,
+        CancellationToken cancellationToken = default
+    )
     {
         var entry = await _repository.GetByIdAsync(id, cancellationToken).ConfigureAwait(false);
         return entry is null ? null : _mapper.Map<AddressBookEntryDto>(entry);
     }
 
     /// <inheritdoc />
-    public async Task<AddressBookEntryDto> CreateAsync(AddressBookEntryDto dto, CancellationToken cancellationToken = default)
+    public async Task<AddressBookEntryDto> CreateAsync(
+        AddressBookEntryDto dto,
+        CancellationToken cancellationToken = default
+    )
     {
         ArgumentNullException.ThrowIfNull(dto);
         var entry = _mapper.Map<AddressBookEntry>(dto);
@@ -72,17 +88,24 @@ public class AddressBookService : IAddressBookService
     }
 
     /// <inheritdoc />
-    public async Task<bool> UpdateAsync(AddressBookEntryDto dto, CancellationToken cancellationToken = default)
+    public async Task<bool> UpdateAsync(
+        AddressBookEntryDto dto,
+        CancellationToken cancellationToken = default
+    )
     {
         ArgumentNullException.ThrowIfNull(dto);
-        var existing = await _repository.GetByIdAsync(dto.Id, cancellationToken).ConfigureAwait(false);
+        var existing = await _repository
+            .GetByIdAsync(dto.Id, cancellationToken)
+            .ConfigureAwait(false);
         if (existing is null)
         {
             return false;
         }
 
         _mapper.Map(dto, existing);
-        var updated = await _repository.UpdateAsync(existing, cancellationToken).ConfigureAwait(false);
+        var updated = await _repository
+            .UpdateAsync(existing, cancellationToken)
+            .ConfigureAwait(false);
         if (updated)
         {
             await _cache.RemoveAsync(ListCacheKey, cancellationToken).ConfigureAwait(false);
