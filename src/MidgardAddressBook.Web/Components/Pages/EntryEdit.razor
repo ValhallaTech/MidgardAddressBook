@@ -16,6 +16,8 @@
     </div>
     <div class="card-body p-4">
         <EditForm Model="Model" OnValidSubmit="SaveAsync" FormName="entry-form">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger small mb-3" />
             <input type="hidden" name="Model.Id" value="@Model.Id" />
 
             <fieldset class="row g-3">
@@ -23,11 +25,11 @@
 
                 <div class="col-md-6">
                     <label for="firstName" class="form-label">First name</label>
-                    <input id="firstName" class="form-control" @bind="Model.FirstName" placeholder="Jane" />
+                    <input id="firstName" name="Model.FirstName" class="form-control" @bind="Model.FirstName" placeholder="Jane" />
                 </div>
                 <div class="col-md-6">
                     <label for="lastName" class="form-label">Last name</label>
-                    <input id="lastName" class="form-control" @bind="Model.LastName" placeholder="Smith" />
+                    <input id="lastName" name="Model.LastName" class="form-control" @bind="Model.LastName" placeholder="Smith" />
                 </div>
             </fieldset>
 
@@ -38,11 +40,11 @@
 
                 <div class="col-md-6">
                     <label for="email" class="form-label">Email</label>
-                    <input id="email" type="email" class="form-control" @bind="Model.Email" placeholder="jane@example.com" />
+                    <input id="email" name="Model.Email" type="email" class="form-control" @bind="Model.Email" placeholder="jane@example.com" />
                 </div>
                 <div class="col-md-6">
                     <label for="phone" class="form-label">Phone</label>
-                    <input id="phone" type="tel" class="form-control" @bind="Model.Phone" placeholder="+1 (555) 000-0000" />
+                    <input id="phone" name="Model.Phone" type="tel" class="form-control" @bind="Model.Phone" placeholder="+1 (555) 000-0000" />
                 </div>
             </fieldset>
 
@@ -53,27 +55,27 @@
 
                 <div class="col-12">
                     <label for="address1" class="form-label">Address line 1</label>
-                    <input id="address1" class="form-control" @bind="Model.Address1" placeholder="123 Main St" />
+                    <input id="address1" name="Model.Address1" class="form-control" @bind="Model.Address1" placeholder="123 Main St" />
                 </div>
                 <div class="col-12">
                     <label for="address2" class="form-label">
                         Address line 2
                         <span class="text-body-secondary fw-normal">(optional)</span>
                     </label>
-                    <input id="address2" class="form-control" @bind="Model.Address2" placeholder="Apt 4B" />
+                    <input id="address2" name="Model.Address2" class="form-control" @bind="Model.Address2" placeholder="Apt 4B" />
                 </div>
 
                 <div class="col-md-5">
                     <label for="city" class="form-label">City</label>
-                    <input id="city" class="form-control" @bind="Model.City" placeholder="Asgard" />
+                    <input id="city" name="Model.City" class="form-control" @bind="Model.City" placeholder="Asgard" />
                 </div>
                 <div class="col-md-4">
                     <label for="state" class="form-label">State</label>
-                    <input id="state" class="form-control" @bind="Model.State" placeholder="NY" />
+                    <input id="state" name="Model.State" class="form-control" @bind="Model.State" placeholder="NY" />
                 </div>
                 <div class="col-md-3">
                     <label for="zipCode" class="form-label">ZIP</label>
-                    <input id="zipCode" class="form-control" @bind="Model.ZipCode" placeholder="10001" />
+                    <input id="zipCode" name="Model.ZipCode" class="form-control" @bind="Model.ZipCode" placeholder="10001" />
                 </div>
             </fieldset>
 

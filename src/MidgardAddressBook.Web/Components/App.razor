@@ -7,7 +7,7 @@
     <base href="/" />
     <ResourcePreloader />
     <link rel="stylesheet" href="@Assets["css/bootstrap.min.css"]" />
-    <link rel="stylesheet" href="css/fontawesome.all.min.css" />
+    <link rel="stylesheet" href="@Assets["css/fontawesome.all.min.css"]" />
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["MidgardAddressBook.Web.styles.css"]" />
     <ImportMap />
@@ -36,19 +36,24 @@
                 var next = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
                 html.setAttribute('data-bs-theme', next);
                 localStorage.setItem('mab-theme', next);
-                // Keep the toggle button's accessible label in sync with the new state
-                var btn = document.querySelector('.theme-toggle');
-                if (btn) {
-                    btn.setAttribute('aria-label',
-                        next === 'dark'
-                            ? 'Toggle dark mode. Currently dark mode.'
-                            : 'Toggle dark mode. Currently light mode.');
-                }
+                MabTheme.syncAriaLabel();
             },
             get: function () {
                 return document.documentElement.getAttribute('data-bs-theme');
+            },
+            syncAriaLabel: function () {
+                var btn = document.querySelector('.theme-toggle');
+                if (btn) {
+                    var current = document.documentElement.getAttribute('data-bs-theme');
+                    btn.setAttribute('aria-label',
+                        current === 'dark'
+                            ? 'Toggle dark mode. Currently dark mode.'
+                            : 'Toggle dark mode. Currently light mode.');
+                }
             }
         };
+        // Sync the button label with the theme that was applied by the no-flash head script
+        MabTheme.syncAriaLabel();
     </script>
 </body>
 
