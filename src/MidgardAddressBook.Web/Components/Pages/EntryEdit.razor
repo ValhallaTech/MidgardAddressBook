@@ -7,7 +7,7 @@
 <PageTitle>@(IsNew ? "New Contact" : "Edit Contact") — Midgard Address Book</PageTitle>
 
 <div class="mb-4">
-    <a href="/" class="btn btn-link ps-0 text-decoration-none">← Back to contacts</a>
+    <a href="/" class="btn btn-link ps-0 text-decoration-none"><i class="fa-solid fa-arrow-left me-1" aria-hidden="true"></i> Back to contacts</a>
 </div>
 
 <div class="card shadow-sm mx-auto" style="max-width: 720px;">
@@ -79,9 +79,9 @@
 
             <div class="mt-4 d-flex gap-2">
                 <button type="submit" class="btn btn-primary px-4">
-                    @(IsNew ? "Create Contact" : "Save Changes")
+                    <i class="fa-solid fa-floppy-disk me-1" aria-hidden="true"></i>@(IsNew ? "Create Contact" : "Save Changes")
                 </button>
-                <a href="/" class="btn btn-outline-secondary">Cancel</a>
+                <a href="/" class="btn btn-outline-secondary"><i class="fa-solid fa-xmark me-1" aria-hidden="true"></i> Cancel</a>
             </div>
         </EditForm>
     </div>

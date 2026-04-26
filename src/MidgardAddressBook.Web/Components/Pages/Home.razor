@@ -11,7 +11,7 @@
         <p class="text-body-secondary mb-0 small">Your personal address book</p>
     </div>
     <a class="btn btn-primary" href="/entries/new">
-        <span aria-hidden="true">＋</span> Add Contact
+        <i class="fa-solid fa-plus me-1" aria-hidden="true"></i> Add Contact
     </a>
 </div>
 
@@ -30,7 +30,7 @@ else if (entries.Count == 0)
 {
     <div class="card shadow-sm">
         <div class="card-body text-center py-5">
-            <p class="display-6 mb-2" aria-hidden="true">📭</p>
+            <div class="mb-3"><i class="fa-solid fa-address-book fa-3x text-body-secondary" aria-hidden="true"></i></div>
             <h2 class="h5 fw-semibold mb-1">No contacts yet</h2>
             <p class="text-body-secondary mb-4">Add your first contact to get started.</p>
             <a class="btn btn-primary" href="/entries/new">Add Contact</a>
@@ -83,12 +83,12 @@ else
                             <td class="text-end">
                                 <div class="d-inline-flex gap-1">
                                     <a class="btn btn-sm btn-outline-primary" href="@($"/entries/{entry.Id}")" title="Edit @entry.FirstName @entry.LastName">
-                                        ✏️ Edit
+                                        <i class="fa-solid fa-pen me-1" aria-hidden="true"></i> Edit
                                     </a>
                                     <button class="btn btn-sm btn-outline-danger"
                                             @onclick="() => DeleteAsync(entry.Id)"
                                             title="Delete @entry.FirstName @entry.LastName">
-                                        🗑️ Delete
+                                        <i class="fa-solid fa-trash me-1" aria-hidden="true"></i> Delete
                                     </button>
                                 </div>
                             </td>
