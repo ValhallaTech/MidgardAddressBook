@@ -18,12 +18,11 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copy csproj files first to maximize restore caching.
-COPY MidgardAddressBook.slnx ./
 COPY src/MidgardAddressBook.Core/MidgardAddressBook.Core.csproj src/MidgardAddressBook.Core/
 COPY src/MidgardAddressBook.DAL/MidgardAddressBook.DAL.csproj   src/MidgardAddressBook.DAL/
 COPY src/MidgardAddressBook.BLL/MidgardAddressBook.BLL.csproj   src/MidgardAddressBook.BLL/
 COPY src/MidgardAddressBook.Web/MidgardAddressBook.Web.csproj   src/MidgardAddressBook.Web/
-RUN dotnet restore MidgardAddressBook.slnx
+RUN dotnet restore src/MidgardAddressBook.Web/MidgardAddressBook.Web.csproj
 
 # Copy the rest of the source.
 COPY src/ src/
