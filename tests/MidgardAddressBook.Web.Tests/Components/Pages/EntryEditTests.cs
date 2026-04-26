@@ -30,8 +30,8 @@ public class EntryEditTests : TestContext
     {
         var cut = RenderComponent<EntryEdit>();
 
-        cut.Markup.Should().Contain("New contact");
-        cut.Find("button[type='submit']").TextContent.Should().Be("Save");
+        cut.Markup.Should().Contain("Add New Contact");
+        cut.Find("button[type='submit']").TextContent.Should().Contain("Create Contact");
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public class EntryEditTests : TestContext
 
         var cut = RenderComponent<EntryEdit>(p => p.Add(c => c.Id, 7));
 
-        cut.Markup.Should().Contain("Edit contact");
+        cut.Markup.Should().Contain("Edit Contact");
         var inputs = cut.FindAll("input.form-control");
         inputs.Should().NotBeEmpty();
         inputs[0].GetAttribute("value").Should().Be("Tyr");
@@ -73,7 +73,7 @@ public class EntryEditTests : TestContext
         var cut = RenderComponent<EntryEdit>(p => p.Add(c => c.Id, 99));
 
         // Renders form anyway (ID is preserved on the blank fallback).
-        cut.Markup.Should().Contain("Edit contact");
+        cut.Markup.Should().Contain("Edit Contact");
     }
 
     [Fact]

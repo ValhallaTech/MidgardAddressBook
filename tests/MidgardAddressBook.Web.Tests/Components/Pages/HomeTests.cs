@@ -33,7 +33,7 @@ public class HomeTests : TestContext
 
         var cut = RenderComponent<Home>();
 
-        cut.Markup.Should().Contain("Loading...");
+        cut.Markup.Should().Contain("Loading contacts");
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public class HomeTests : TestContext
 
         var cut = RenderComponent<Home>();
 
-        cut.Markup.Should().Contain("No contacts yet.");
+        cut.Markup.Should().Contain("No contacts yet");
     }
 
     [Fact]
@@ -104,6 +104,6 @@ public class HomeTests : TestContext
 
         _service.Verify(s => s.DeleteAsync(5, It.IsAny<CancellationToken>()), Times.Once);
         _service.Verify(s => s.GetAllAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
-        cut.Markup.Should().Contain("No contacts yet.");
+        cut.Markup.Should().Contain("No contacts yet");
     }
 }
