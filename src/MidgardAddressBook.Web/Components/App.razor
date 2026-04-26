@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
 
 <head>
     <meta charset="utf-8" />
@@ -11,6 +11,16 @@
     <link rel="stylesheet" href="@Assets["MidgardAddressBook.Web.styles.css"]" />
     <ImportMap />
     <HeadOutlet />
+    <!-- No-flash theme init: runs before CSS paints, prevents FOUC in dark mode -->
+    <script>
+        (function () {
+            var saved = localStorage.getItem('mab-theme');
+            // Validate to prevent an injected value from being applied as an attribute
+            if (saved !== 'dark' && saved !== 'light') { saved = null; }
+            var preferred = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-bs-theme', saved || preferred);
+        })();
+    </script>
 </head>
 
 <body>
@@ -18,6 +28,27 @@
     <ReconnectModal />
     <script src="@Assets["_framework/blazor.web.js"]"></script>
     <script src="@Assets["js/bootstrap.bundle.min.js"]"></script>
+    <script>
+        window.MabTheme = {
+            toggle: function () {
+                var html = document.documentElement;
+                var next = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+                html.setAttribute('data-bs-theme', next);
+                localStorage.setItem('mab-theme', next);
+                // Keep the toggle button's accessible label in sync with the new state
+                var btn = document.querySelector('.theme-toggle');
+                if (btn) {
+                    btn.setAttribute('aria-label',
+                        next === 'dark'
+                            ? 'Toggle dark mode. Currently dark mode.'
+                            : 'Toggle dark mode. Currently light mode.');
+                }
+            },
+            get: function () {
+                return document.documentElement.getAttribute('data-bs-theme');
+            }
+        };
+    </script>
 </body>
 
 </html>

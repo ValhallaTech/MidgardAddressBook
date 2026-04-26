@@ -1,6 +1,25 @@
 ﻿@inherits LayoutComponentBase
 
-@Body
+<nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-semibold" href="/">
+            📖 Midgard Address Book
+        </a>
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-secondary btn-sm theme-toggle"
+                    onclick="MabTheme.toggle()"
+                    title="Toggle dark / light mode"
+                    aria-label="Toggle dark mode. Currently light mode.">
+                <span class="theme-icon-dark" aria-hidden="true">🌙</span>
+                <span class="theme-icon-light" aria-hidden="true">☀️</span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<main class="container py-4">
+    @Body
+</main>
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
