@@ -15,7 +15,7 @@ public class NotFoundTests : TestContext
     {
         var cut = RenderComponent<NotFound>();
 
-        cut.Find("h3").TextContent.Should().Be("Not Found");
-        cut.Markup.Should().Contain("Sorry, the content you are looking for does not exist.");
+        cut.Find("h1").TextContent.Should().Be("Page not found");
+        cut.Markup.Should().Contain("The page you're looking for doesn't exist or has been moved.");
     }
 }

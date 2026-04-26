@@ -20,7 +20,7 @@ public class ErrorTests : TestContext
 
         var cut = RenderComponent<Error>();
 
-        cut.Find("h1").TextContent.Should().Contain("Error");
+        cut.Find("h1").TextContent.Should().Be("An error occurred");
         cut.Markup.Should().NotContain("Request ID:");
     }
 
