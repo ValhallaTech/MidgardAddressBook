@@ -31,7 +31,7 @@
   <Target
     Name="YarnBuildAssets"
     BeforeTargets="PrepareForPublish"
-    Condition="'$(SkipYarnBuild)' != 'true' and ('$(SkipNpmBuild)' != 'true') and (!Exists('wwwroot/css/bootstrap.min.css') or !Exists('wwwroot/css/bootstrap.min.css.map') or !Exists('wwwroot/js/bootstrap.bundle.min.js') or !Exists('wwwroot/js/bootstrap.bundle.min.js.map'))"
+    Condition="'$(SkipYarnBuild)' != 'true' and ('$(SkipNpmBuild)' != 'true') and (!Exists('wwwroot/css/bootstrap.min.css') or !Exists('wwwroot/css/bootstrap.min.css.map') or !Exists('wwwroot/js/bootstrap.bundle.min.js') or !Exists('wwwroot/js/bootstrap.bundle.min.js.map') or !Exists('wwwroot/css/fontawesome.all.min.css') or !Exists('wwwroot/webfonts/fa-solid-900.woff2'))"
   >
     <Exec Command="corepack enable" WorkingDirectory="$(MSBuildProjectDirectory)" />
     <Exec

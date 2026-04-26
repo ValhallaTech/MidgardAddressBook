@@ -18,3 +18,16 @@
         right: 0.75rem;
         top: 0.5rem;
     }
+
+/* Dark mode toggle: show the correct icon based on active theme */
+[data-bs-theme="light"] .theme-icon-light {
+    display: none;
+}
+
+[data-bs-theme="dark"] .theme-icon-dark {
+    display: none;
+}
+
+.theme-toggle {
+    line-height: 1;
+}
