@@ -27,9 +27,10 @@ RUN dotnet restore src/MidgardAddressBook.Web/MidgardAddressBook.Web.csproj
 # Copy the rest of the source.
 COPY src/ src/
 
-# Bring in the prebuilt Bootstrap assets from the assets stage.
-COPY --from=assets /src/web/wwwroot/css/ src/MidgardAddressBook.Web/wwwroot/css/
-COPY --from=assets /src/web/wwwroot/js/  src/MidgardAddressBook.Web/wwwroot/js/
+# Bring in the prebuilt front-end assets from the assets stage.
+COPY --from=assets /src/web/wwwroot/css/      src/MidgardAddressBook.Web/wwwroot/css/
+COPY --from=assets /src/web/wwwroot/js/       src/MidgardAddressBook.Web/wwwroot/js/
+COPY --from=assets /src/web/wwwroot/webfonts/ src/MidgardAddressBook.Web/wwwroot/webfonts/
 
 RUN dotnet publish src/MidgardAddressBook.Web/MidgardAddressBook.Web.csproj \
     -c Release \
