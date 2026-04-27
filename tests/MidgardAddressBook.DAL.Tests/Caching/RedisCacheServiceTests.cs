@@ -81,7 +81,10 @@ public class RedisCacheServiceTests
         var (sut, db) = CreateSut();
         var payload = JsonConvert.SerializeObject(
             new Sample(1, "midgard"),
-            new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }
+            new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            }
         );
         db.Setup(d => d.StringGetAsync("hit", It.IsAny<CommandFlags>()))
             .ReturnsAsync((RedisValue)payload);
