@@ -1,11 +1,12 @@
 using System;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using MidgardAddressBook.DAL.Caching;
 using Moq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using StackExchange.Redis;
 using Xunit;
 
@@ -78,9 +79,9 @@ public class RedisCacheServiceTests
     public async Task GetAsync_DeserializesValueOnHit()
     {
         var (sut, db) = CreateSut();
-        var payload = JsonSerializer.Serialize(
+        var payload = JsonConvert.SerializeObject(
             new Sample(1, "midgard"),
-            new JsonSerializerOptions(JsonSerializerDefaults.Web)
+            new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }
         );
         db.Setup(d => d.StringGetAsync("hit", It.IsAny<CommandFlags>()))
             .ReturnsAsync((RedisValue)payload);

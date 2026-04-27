@@ -1,9 +1,10 @@
 using System;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MidgardAddressBook.Core.Interfaces;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using StackExchange.Redis;
 
 namespace MidgardAddressBook.DAL.Caching;
@@ -14,9 +15,10 @@ namespace MidgardAddressBook.DAL.Caching;
 /// </summary>
 public class RedisCacheService : ICacheService
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new(
-        JsonSerializerDefaults.Web
-    );
+    private static readonly JsonSerializerSettings SerializerSettings = new()
+    {
+        ContractResolver = new CamelCasePropertyNamesContractResolver(),
+    };
     private readonly IConnectionMultiplexer _multiplexer;
     private readonly ILogger<RedisCacheService> _logger;
 
@@ -41,9 +43,9 @@ public class RedisCacheService : ICacheService
                 return null;
             }
 
-            return JsonSerializer.Deserialize<T>((string)value!, SerializerOptions);
+            return JsonConvert.DeserializeObject<T>((string)value!, SerializerSettings);
         }
-        catch (Exception ex) when (ex is RedisException or JsonException)
+        catch (Exception ex) when (ex is RedisException or Newtonsoft.Json.JsonException)
         {
             _logger.LogWarning(ex, "Redis GET failed for key {CacheKey}; returning null.", key);
             return null;
@@ -61,12 +63,12 @@ public class RedisCacheService : ICacheService
     {
         try
         {
-            var payload = JsonSerializer.Serialize(value, SerializerOptions);
+            var payload = JsonConvert.SerializeObject(value, SerializerSettings);
             await GetDatabase()
                 .StringSetAsync(key, payload, ttl, When.Always)
                 .ConfigureAwait(false);
         }
-        catch (Exception ex) when (ex is RedisException or JsonException)
+        catch (Exception ex) when (ex is RedisException or Newtonsoft.Json.JsonException)
         {
             _logger.LogWarning(
                 ex,
