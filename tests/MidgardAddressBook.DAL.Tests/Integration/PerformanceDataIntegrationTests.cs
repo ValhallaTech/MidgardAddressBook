@@ -45,11 +45,13 @@ public sealed class PerformanceDataIntegrationTests
 
         _postgresConnectionString = fixture.PostgresConnectionString;
 
-        var dataOptions = Options.Create(new DataOptions
-        {
-            PostgresConnectionString = fixture.PostgresConnectionString,
-            RedisConnectionString = fixture.RedisConnectionString,
-        });
+        var dataOptions = Options.Create(
+            new DataOptions
+            {
+                PostgresConnectionString = fixture.PostgresConnectionString,
+                RedisConnectionString = fixture.RedisConnectionString,
+            }
+        );
 
         _repository = new AddressBookEntryRepository(dataOptions);
 
