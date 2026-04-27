@@ -10,7 +10,7 @@ namespace MidgardAddressBook.Web.Tests.Components.Pages;
 /// bUnit tests for <see cref="Error"/> covering both the "with request id" and "without
 /// request id" rendering branches.
 /// </summary>
-public class ErrorTests : TestContext
+public class ErrorTests : BunitContext
 {
     [Fact]
     public void RendersHeading_AndNoRequestId_WhenActivityAndHttpContextAreAbsent()
@@ -18,7 +18,7 @@ public class ErrorTests : TestContext
         // Make sure no ambient Activity leaks in from another test.
         Activity.Current = null;
 
-        var cut = RenderComponent<Error>();
+        var cut = Render<Error>();
 
         cut.Find("h1").TextContent.Should().Be("An error occurred");
         cut.Markup.Should().NotContain("Request ID:");
@@ -32,7 +32,7 @@ public class ErrorTests : TestContext
 
         try
         {
-            var cut = RenderComponent<Error>();
+            var cut = Render<Error>();
 
             cut.Markup.Should().Contain("Request ID:");
             cut.Markup.Should().Contain(activity.Id!);

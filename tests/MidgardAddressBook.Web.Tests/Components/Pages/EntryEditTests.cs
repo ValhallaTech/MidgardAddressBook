@@ -16,7 +16,7 @@ namespace MidgardAddressBook.Web.Tests.Components.Pages;
 /// bUnit tests for <see cref="EntryEdit"/> covering new/edit modes, server load on edit,
 /// and the save → navigate-home flow for both Create and Update paths.
 /// </summary>
-public class EntryEditTests : TestContext
+public class EntryEditTests : BunitContext
 {
     private readonly Mock<IAddressBookService> _service = new();
 
@@ -28,7 +28,7 @@ public class EntryEditTests : TestContext
     [Fact]
     public void NewMode_RendersEmptyForm_WhenIdIsZeroOrNull()
     {
-        var cut = RenderComponent<EntryEdit>();
+        var cut = Render<EntryEdit>();
 
         cut.Markup.Should().Contain("Add New Contact");
         cut.Find("button[type='submit']").TextContent.Should().Contain("Create Contact");
@@ -54,7 +54,7 @@ public class EntryEditTests : TestContext
                 }
             );
 
-        var cut = RenderComponent<EntryEdit>(p => p.Add(c => c.Id, 7));
+        var cut = Render<EntryEdit>(p => p.Add(c => c.Id, 7));
 
         cut.Markup.Should().Contain("Edit Contact");
         var inputs = cut.FindAll("input.form-control");
@@ -70,7 +70,7 @@ public class EntryEditTests : TestContext
             .Setup(s => s.GetByIdAsync(99, It.IsAny<CancellationToken>()))
             .ReturnsAsync((AddressBookEntryDto?)null);
 
-        var cut = RenderComponent<EntryEdit>(p => p.Add(c => c.Id, 99));
+        var cut = Render<EntryEdit>(p => p.Add(c => c.Id, 99));
 
         // Renders form anyway (ID is preserved on the blank fallback).
         cut.Markup.Should().Contain("Edit Contact");
@@ -90,9 +90,9 @@ public class EntryEditTests : TestContext
                     return d;
                 }
             );
-        var nav = Services.GetRequiredService<FakeNavigationManager>();
+        var nav = Services.GetRequiredService<BunitNavigationManager>();
 
-        var cut = RenderComponent<EntryEdit>();
+        var cut = Render<EntryEdit>();
         FillRequiredFields(cut);
         cut.Find("form").Submit();
 
@@ -131,9 +131,9 @@ public class EntryEditTests : TestContext
                 s.UpdateAsync(It.IsAny<AddressBookEntryDto>(), It.IsAny<CancellationToken>())
             )
             .ReturnsAsync(true);
-        var nav = Services.GetRequiredService<FakeNavigationManager>();
+        var nav = Services.GetRequiredService<BunitNavigationManager>();
 
-        var cut = RenderComponent<EntryEdit>(p => p.Add(c => c.Id, 8));
+        var cut = Render<EntryEdit>(p => p.Add(c => c.Id, 8));
         cut.Find("form").Submit();
 
         _service.Verify(

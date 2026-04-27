@@ -16,7 +16,7 @@ namespace MidgardAddressBook.Web.Tests.Components.Pages;
 /// bUnit tests for the <see cref="Home"/> Blazor page covering loading, empty,
 /// and populated states plus the delete interaction.
 /// </summary>
-public class HomeTests : TestContext
+public class HomeTests : BunitContext
 {
     private readonly Mock<IAddressBookService> _service = new();
 
@@ -31,7 +31,7 @@ public class HomeTests : TestContext
         var tcs = new TaskCompletionSource<IReadOnlyList<AddressBookEntryDto>>();
         _service.Setup(s => s.GetAllAsync(It.IsAny<CancellationToken>())).Returns(tcs.Task);
 
-        var cut = RenderComponent<Home>();
+        var cut = Render<Home>();
 
         cut.Markup.Should().Contain("Loading contacts");
     }
@@ -43,7 +43,7 @@ public class HomeTests : TestContext
             .Setup(s => s.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<AddressBookEntryDto>());
 
-        var cut = RenderComponent<Home>();
+        var cut = Render<Home>();
 
         cut.Markup.Should().Contain("No contacts yet");
     }
@@ -69,7 +69,7 @@ public class HomeTests : TestContext
                 }
             );
 
-        var cut = RenderComponent<Home>();
+        var cut = Render<Home>();
 
         var rows = cut.FindAll("tbody tr");
         rows.Should().HaveCount(1);
@@ -99,7 +99,7 @@ public class HomeTests : TestContext
             .ReturnsAsync(new List<AddressBookEntryDto>());
         _service.Setup(s => s.DeleteAsync(5, It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
-        var cut = RenderComponent<Home>();
+        var cut = Render<Home>();
         cut.Find("button.btn-outline-danger").Click();
 
         _service.Verify(s => s.DeleteAsync(5, It.IsAny<CancellationToken>()), Times.Once);
