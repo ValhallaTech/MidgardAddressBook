@@ -15,17 +15,17 @@ public class M202404270001_OptimiseAddressBookIndexes : Migration
     public override void Up()
     {
         // 1. Remove the previous narrow index so the composite one can take its place.
-        Delete
-            .Index("ix_address_book_entries_last_name")
-            .OnTable("address_book_entries");
+        Delete.Index("ix_address_book_entries_last_name").OnTable("address_book_entries");
 
         // 2. Create the composite index covering (last_name, first_name) to support
         //    surname-first searches and ORDER BY last_name, first_name efficiently.
         Create
             .Index("ix_address_book_entries_last_name_first_name")
             .OnTable("address_book_entries")
-            .OnColumn("last_name").Ascending()
-            .OnColumn("first_name").Ascending();
+            .OnColumn("last_name")
+            .Ascending()
+            .OnColumn("first_name")
+            .Ascending();
 
         // 3. Add a unique constraint on email — enforces one entry per e-mail address.
         //    Execute.Sql is used here because FluentMigrator's Create.UniqueConstraint
@@ -52,6 +52,7 @@ public class M202404270001_OptimiseAddressBookIndexes : Migration
         Create
             .Index("ix_address_book_entries_last_name")
             .OnTable("address_book_entries")
-            .OnColumn("last_name").Ascending();
+            .OnColumn("last_name")
+            .Ascending();
     }
 }

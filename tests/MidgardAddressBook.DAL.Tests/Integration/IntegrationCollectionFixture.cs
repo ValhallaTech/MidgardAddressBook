@@ -33,9 +33,7 @@ public sealed class IntegrationCollectionFixture : IAsyncLifetime
         .WithImage("postgres:18.3-alpine")
         .Build();
 
-    private readonly RedisContainer _redis = new RedisBuilder()
-        .WithImage("redis:8-alpine")
-        .Build();
+    private readonly RedisContainer _redis = new RedisBuilder().WithImage("redis:8-alpine").Build();
 
     /// <summary>
     /// Gets the fully-formed Npgsql connection string for the running PostgreSQL container.
@@ -55,10 +53,7 @@ public sealed class IntegrationCollectionFixture : IAsyncLifetime
     /// </summary>
     public async Task InitializeAsync()
     {
-        await Task.WhenAll(
-            _postgres.StartAsync(),
-            _redis.StartAsync()
-        ).ConfigureAwait(false);
+        await Task.WhenAll(_postgres.StartAsync(), _redis.StartAsync()).ConfigureAwait(false);
 
         PostgresConnectionString = _postgres.GetConnectionString();
         RedisConnectionString = _redis.GetConnectionString();
@@ -67,10 +62,9 @@ public sealed class IntegrationCollectionFixture : IAsyncLifetime
         var services = new ServiceCollection();
         services.AddMidgardMigrations(PostgresConnectionString);
         await using var provider = services.BuildServiceProvider();
-        await provider.RunMidgardMigrationsAsync(
-            maxAttempts: 3,
-            retryDelay: System.TimeSpan.FromSeconds(2)
-        ).ConfigureAwait(false);
+        await provider
+            .RunMidgardMigrationsAsync(maxAttempts: 3, retryDelay: System.TimeSpan.FromSeconds(2))
+            .ConfigureAwait(false);
 
         // Seed 1 000 deterministic rows.
         var seeder = new DatabaseSeeder(PostgresConnectionString);
