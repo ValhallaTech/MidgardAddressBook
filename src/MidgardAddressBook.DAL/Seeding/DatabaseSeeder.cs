@@ -65,6 +65,10 @@ public sealed class DatabaseSeeder
         var phones = new string[count];
         var datesAdded = new DateTimeOffset[count];
 
+        // Fixed UTC anchor so every seeding run produces identical timestamps regardless of
+        // when it is executed. Matches the anchor used by M202404240002_SeedPerformanceData.
+        var anchor = new DateTimeOffset(2024, 4, 24, 0, 0, 0, TimeSpan.Zero);
+
         for (var i = 0; i < count; i++)
         {
             firstNames[i] = $"First{i}";
@@ -75,7 +79,7 @@ public sealed class DatabaseSeeder
             cities[i] = "Midgard";
             zipCodes[i] = "10001";
             phones[i] = $"555-{i:D7}";
-            datesAdded[i] = DateTimeOffset.UtcNow.AddDays(-i);
+            datesAdded[i] = anchor.AddDays(-i);
         }
 
         // address2 and avatar / file_name are intentionally omitted — they will be NULL,
