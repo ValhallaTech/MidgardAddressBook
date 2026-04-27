@@ -17,9 +17,6 @@ namespace MidgardAddressBook.DAL.Migrations;
 [Migration(202404240002, "Seed performance data")]
 public class M202404240002_SeedPerformanceData : Migration
 {
-    // SQL shared between Up() and Down() must agree on the email pattern.
-    private const string EmailPattern = "user%@example.com";
-
     /// <inheritdoc />
     public override void Up()
     {
@@ -31,10 +28,12 @@ public class M202404240002_SeedPerformanceData : Migration
     {
         // Removes all rows whose email matches the seeded pattern, which covers both this
         // migration and any rows inserted by DatabaseSeeder using the same convention.
-        Execute.Sql(
-            $"DELETE FROM address_book_entries WHERE email LIKE '{EmailPattern}';"
-        );
+        Execute.Sql(DownSql);
     }
+
+    // Hard-coded constant — no user input involved, so no injection risk.
+    private const string DownSql =
+        "DELETE FROM address_book_entries WHERE email LIKE 'user%@example.com';";
 
     // Ten hard-coded rows — deterministic values matching the DatabaseSeeder convention so
     // that integration tests can assert on predictable data without relying on random
