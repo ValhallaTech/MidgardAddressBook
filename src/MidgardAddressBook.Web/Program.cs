@@ -86,6 +86,28 @@ catch (Exception ex)
     throw;
 }
 
+// --- Seed database if requested (SEED_DATABASE=true) ----------------------
+var seedDatabase =
+    string.Equals(
+        Environment.GetEnvironmentVariable("SEED_DATABASE"),
+        "true",
+        StringComparison.OrdinalIgnoreCase
+    );
+var seedCountEnv = Environment.GetEnvironmentVariable("SEED_COUNT");
+var seedCount =
+    !string.IsNullOrWhiteSpace(seedCountEnv) && int.TryParse(seedCountEnv, out var parsedCount)
+        ? parsedCount
+        : 1000;
+try
+{
+    await app.Services.SeedIfRequestedAsync(seedDatabase, postgresConnectionString, seedCount);
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Database seeding failed on startup.");
+    throw;
+}
+
 // --- Pipeline -------------------------------------------------------------
 if (!app.Environment.IsDevelopment())
 {

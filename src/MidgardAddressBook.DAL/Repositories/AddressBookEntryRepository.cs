@@ -34,6 +34,12 @@ public class AddressBookEntryRepository : IAddressBookEntryRepository
         + "avatar AS Avatar, file_name AS FileName, address1 AS Address1, address2 AS Address2, "
         + "state AS State, city AS City, zip_code AS ZipCode, phone AS Phone, date_added AS DateAdded";
 
+    // avatar and file_name intentionally omitted — list view only needs name, email, phone, city, state.
+    private const string SelectColumnsForList =
+        "id AS Id, first_name AS FirstName, last_name AS LastName, email AS Email, "
+        + "address1 AS Address1, address2 AS Address2, "
+        + "state AS State, city AS City, zip_code AS ZipCode, phone AS Phone, date_added AS DateAdded";
+
     /// <inheritdoc />
     public async Task<IReadOnlyList<AddressBookEntry>> GetAllAsync(
         CancellationToken cancellationToken = default
@@ -41,7 +47,7 @@ public class AddressBookEntryRepository : IAddressBookEntryRepository
     {
         using var connection = CreateConnection();
         var command = new CommandDefinition(
-            $"SELECT {SelectColumns} FROM address_book_entries ORDER BY last_name, first_name",
+            $"SELECT {SelectColumnsForList} FROM address_book_entries ORDER BY last_name, first_name",
             cancellationToken: cancellationToken
         );
         var rows = await connection.QueryAsync<AddressBookEntry>(command).ConfigureAwait(false);

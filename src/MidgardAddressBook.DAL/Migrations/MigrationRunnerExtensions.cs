@@ -2,9 +2,11 @@ using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using FluentMigrator.Runner;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MidgardAddressBook.DAL.Seeding;
 using Npgsql;
 
 namespace MidgardAddressBook.DAL.Migrations;
@@ -99,6 +101,74 @@ public static class MigrationRunnerExtensions
                 await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
             }
         }
+    }
+
+    /// <summary>
+    /// Seeds the database with synthetic data when <paramref name="seedRequested"/> is
+    /// <see langword="true"/> and the <c>address_book_entries</c> table is currently empty.
+    /// If the table already contains at least one row the operation is skipped so that
+    /// successive deployments remain idempotent.
+    /// </summary>
+    /// <param name="serviceProvider">Root service provider used to resolve logging services.</param>
+    /// <param name="seedRequested">
+    /// When <see langword="false"/> the method returns immediately without touching the database.
+    /// Typically driven by an environment variable such as <c>SEED_DATABASE</c>.
+    /// </param>
+    /// <param name="postgresConnectionString">
+    /// Npgsql connection string used for the idempotency check and passed to
+    /// <see cref="DatabaseSeeder"/>.
+    /// </param>
+    /// <param name="count">
+    /// Number of synthetic rows to insert when the table is empty. Must be at least 1.
+    /// Defaults to <c>1 000</c>.
+    /// </param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    public static async Task SeedIfRequestedAsync(
+        this IServiceProvider serviceProvider,
+        bool seedRequested,
+        string postgresConnectionString,
+        int count = 1000,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+        ArgumentException.ThrowIfNullOrWhiteSpace(postgresConnectionString);
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 1);
+
+        var logger = serviceProvider
+            .GetRequiredService<ILoggerFactory>()
+            .CreateLogger("MidgardAddressBook.DAL.Seeding");
+
+        if (!seedRequested)
+        {
+            logger.LogInformation("Database seeding skipped (SEED_DATABASE not set).");
+            return;
+        }
+
+        await using var connection = new NpgsqlConnection(postgresConnectionString);
+        await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+        var hasRows = await connection
+            .ExecuteScalarAsync<bool>(
+                new CommandDefinition(
+                    "SELECT EXISTS(SELECT 1 FROM address_book_entries LIMIT 1)",
+                    cancellationToken: cancellationToken
+                )
+            )
+            .ConfigureAwait(false);
+
+        if (hasRows)
+        {
+            logger.LogInformation("Database already contains data; skipping seed.");
+            return;
+        }
+
+        logger.LogInformation("Seeding database with {Count} records\u2026", count);
+
+        var seeder = new DatabaseSeeder(postgresConnectionString);
+        await seeder.SeedAsync(count, cancellationToken).ConfigureAwait(false);
+
+        logger.LogInformation("Database seeding complete ({Count} records inserted).", count);
     }
 
     /// <summary>
