@@ -10,12 +10,12 @@ namespace MidgardAddressBook.Web.Tests.Components.Layout;
 /// Smoke tests for <see cref="MainLayout"/> verifying it renders its body content and the
 /// blazor error UI host element used by the Blazor runtime.
 /// </summary>
-public class MainLayoutTests : TestContext
+public class MainLayoutTests : BunitContext
 {
     [Fact]
     public void Renders_BodyContent_AndErrorUiHost()
     {
-        var cut = RenderComponent<MainLayout>(parameters =>
+        var cut = Render<MainLayout>(parameters =>
             parameters.Add<RenderFragment>(
                 p => p.Body!,
                 builder => builder.AddMarkupContent(0, "<p id=\"hello\">hi</p>")

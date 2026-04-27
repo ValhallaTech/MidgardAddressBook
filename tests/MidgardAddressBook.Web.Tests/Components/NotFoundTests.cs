@@ -8,12 +8,12 @@ namespace MidgardAddressBook.Web.Tests.Components;
 /// <summary>
 /// Smoke tests for the <see cref="NotFound"/> Blazor page using bUnit.
 /// </summary>
-public class NotFoundTests : TestContext
+public class NotFoundTests : BunitContext
 {
     [Fact]
     public void RendersHeadingAndApologyText()
     {
-        var cut = RenderComponent<NotFound>();
+        var cut = Render<NotFound>();
 
         cut.Find("h1").TextContent.Should().Be("Page not found");
         cut.Markup.Should().Contain("The page you're looking for doesn't exist or has been moved.");
