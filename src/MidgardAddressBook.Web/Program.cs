@@ -86,12 +86,11 @@ catch (Exception ex)
     throw;
 }
 
-// --- Seed database if requested (SEED_DATABASE=true) ----------------------
-var seedDatabase = string.Equals(
-    Environment.GetEnvironmentVariable("SEED_DATABASE"),
-    "true",
-    StringComparison.OrdinalIgnoreCase
-);
+// --- Seed database unless explicitly opted out (SEED_DATABASE=false) -------
+var seedEnv = Environment.GetEnvironmentVariable("SEED_DATABASE")?.Trim();
+var seedDatabase =
+    string.IsNullOrWhiteSpace(seedEnv)
+    || !string.Equals(seedEnv, "false", StringComparison.OrdinalIgnoreCase);
 var seedCountEnv = Environment.GetEnvironmentVariable("SEED_COUNT");
 var seedCount =
     !string.IsNullOrWhiteSpace(seedCountEnv) && int.TryParse(seedCountEnv, out var parsedCount)
