@@ -87,7 +87,7 @@ catch (Exception ex)
 }
 
 // --- Seed database unless explicitly opted out (SEED_DATABASE=false) -------
-var seedEnv = Environment.GetEnvironmentVariable("SEED_DATABASE");
+var seedEnv = Environment.GetEnvironmentVariable("SEED_DATABASE")?.Trim();
 var seedDatabase =
     string.IsNullOrWhiteSpace(seedEnv)
     || !string.Equals(seedEnv, "false", StringComparison.OrdinalIgnoreCase);
