@@ -141,7 +141,7 @@ public static class MigrationRunnerExtensions
 
         if (!seedRequested)
         {
-            logger.LogInformation("Database seeding skipped (SEED_DATABASE not set).");
+            logger.LogInformation("Database seeding skipped (SEED_DATABASE=false).");
             return;
         }
 

@@ -21,8 +21,6 @@ services:
           type: keyvalue
           name: midgardaddressbook-redis
           property: connectionString
-      - key: SEED_DATABASE
-        value: "true"
 
   - type: keyvalue
     name: midgardaddressbook-redis
