@@ -4,6 +4,7 @@ using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
+using Dapper.Extensions;
 using Microsoft.Extensions.Options;
 using MidgardAddressBook.Core.Interfaces;
 using MidgardAddressBook.Core.Models;
@@ -14,18 +15,40 @@ using Npgsql;
 namespace MidgardAddressBook.DAL.Repositories;
 
 /// <summary>
-/// Dapper + Npgsql implementation of <see cref="IAddressBookEntryRepository"/>.
+/// Dapper implementation of <see cref="IAddressBookEntryRepository"/>. Paged reads are routed
+/// through <see cref="IDapper"/> from <c>Dapper.Extensions.PostgreSQL</c>; all other operations
+/// use a directly-managed <see cref="NpgsqlConnection"/> for the smallest possible footprint.
 /// </summary>
 public class AddressBookEntryRepository : IAddressBookEntryRepository
 {
     private readonly string _connectionString;
+    private readonly IDapper? _dapper;
 
-    /// <summary>Initializes a new instance.</summary>
+    /// <summary>
+    /// Initializes a new instance using only <see cref="DataOptions"/>. Paged reads will fall
+    /// back to a self-managed <see cref="NpgsqlConnection"/> + <c>QueryMultipleAsync</c> path,
+    /// which is suitable for unit / integration tests that don't wire up Dapper.Extensions DI.
+    /// </summary>
     /// <param name="options">Bound <see cref="DataOptions"/> providing the Postgres connection string.</param>
     public AddressBookEntryRepository(IOptions<DataOptions> options)
     {
         ArgumentNullException.ThrowIfNull(options);
         _connectionString = options.Value.PostgresConnectionString;
+        _dapper = null;
+    }
+
+    /// <summary>
+    /// Initializes a new instance using <see cref="IDapper"/> for paged reads. Autofac will
+    /// prefer this constructor at runtime because it is the greediest resolvable overload.
+    /// </summary>
+    /// <param name="options">Bound <see cref="DataOptions"/> providing the Postgres connection string.</param>
+    /// <param name="dapper">The Dapper.Extensions handle used for paged queries.</param>
+    public AddressBookEntryRepository(IOptions<DataOptions> options, IDapper dapper)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(dapper);
+        _connectionString = options.Value.PostgresConnectionString;
+        _dapper = dapper;
     }
 
     private IDbConnection CreateConnection() => new NpgsqlConnection(_connectionString);
@@ -71,10 +94,6 @@ public class AddressBookEntryRepository : IAddressBookEntryRepository
         string sortDirection = query.SortDirection == SortDirection.Descending ? "DESC" : "ASC";
 
         var parameters = new DynamicParameters();
-        parameters.Add("Limit", query.PageSize);
-        long offset = ((long)query.Page - 1L) * query.PageSize;
-        parameters.Add("Offset", offset);
-
         string whereClause = string.Empty;
         if (!string.IsNullOrEmpty(query.SearchText))
         {
@@ -83,22 +102,49 @@ public class AddressBookEntryRepository : IAddressBookEntryRepository
             parameters.Add("Search", $"%{query.SearchText}%");
         }
 
-        // Both queries share the same WHERE clause; run them in a single round-trip via QueryMultipleAsync.
-        string sql =
+        // ORDER BY always includes "id ASC" as a deterministic tie-breaker so paging is stable
+        // across requests even when the sort column has duplicate values.
+        string querySql =
             $"""
             SELECT {SelectColumnsForList}
             FROM   address_book_entries
             {whereClause}
             ORDER  BY {sortColumn} {sortDirection}, id ASC
-            LIMIT  @Limit OFFSET @Offset;
-
-            SELECT COUNT(*)::int
-            FROM   address_book_entries
-            {whereClause};
+            LIMIT  @Take OFFSET @Skip
             """;
 
+        string countSql =
+            $"""
+            SELECT COUNT(*)::int
+            FROM   address_book_entries
+            {whereClause}
+            """;
+
+        if (_dapper is not null)
+        {
+            // Dapper.Extensions automatically supplies @Skip and @Take based on pageindex/pageSize.
+            var page = await _dapper
+                .QueryPageAsync<AddressBookEntry>(
+                    countSql,
+                    querySql,
+                    query.Page,
+                    query.PageSize,
+                    parameters,
+                    cancellationToken: cancellationToken
+                )
+                .ConfigureAwait(false);
+
+            var items = page.Result ?? new List<AddressBookEntry>();
+            return (items.AsReadOnly(), checked((int)page.TotalCount));
+        }
+
+        // Fallback path used when no IDapper is wired up (e.g. some integration tests).
+        parameters.Add("Take", query.PageSize);
+        parameters.Add("Skip", ((long)query.Page - 1L) * query.PageSize);
+
+        string combinedSql = querySql + ";\n" + countSql + ";";
         using var connection = CreateConnection();
-        var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(combinedSql, parameters, cancellationToken: cancellationToken);
 
         using var multi = await connection.QueryMultipleAsync(command).ConfigureAwait(false);
         var rows = await multi.ReadAsync<AddressBookEntry>().ConfigureAwait(false);

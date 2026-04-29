@@ -291,12 +291,16 @@ public class HomeTests : BunitContext
         );
     }
 
-    // ── Sort three-state toggle ───────────────────────────────────────────────
+    // ── Sort two-state toggle ─────────────────────────────────────────────────
 
     [Fact]
-    public void Should_CycleSort_When_NameColumnHeaderClickedThreeTimes()
+    public void Should_ToggleSortDirection_When_SameColumnHeaderClickedTwice()
     {
-        // Arrange – the table must be rendered (non-empty) so column header buttons appear.
+        // Arrange — the table must be rendered (non-empty) so column header
+        // buttons appear. The component initialises with
+        // SortField="LastName" / SortDirection=Ascending and immediately
+        // issues a load with those values; subsequent clicks exercise the
+        // two-state asc ↔ desc cycle.
         _service
             .Setup(s => s.GetPagedAsync(It.IsAny<PagedQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
@@ -313,66 +317,54 @@ public class HomeTests : BunitContext
 
         var cut = Render<Home>();
 
-        // The component initialises with LastName/Ascending/active.  Click the Email
-        // column header first to shift the active sort away from LastName; this puts
-        // the state machine in "different field" mode so the three subsequent Name
-        // clicks exercise the full Ascending → Descending → no-sort cycle.
-        //
         // Column order in the table thead (mirrors the razor markup):
         //   [0] Name/LastName  [1] Email  [2] Phone  [3] City,State  [4] DateAdded
-        var thButtons = cut.FindAll("th button.btn-link");
-        var emailSortButton = thButtons[1]; // Email column header
 
-        emailSortButton.Click(); // activate Email sort (moves away from default LastName)
-
-        // --- Click 1: different field → LastName/Ascending ---
+        // --- Click 1: same field as default (LastName) → flips Ascending → Descending ---
         cut.FindAll("th button.btn-link")[0].Click();
 
         _service.Verify(
             s =>
                 s.GetPagedAsync(
-                    It.Is<PagedQuery>(
-                        q =>
-                            q.SortField == "LastName"
-                            && q.SortDirection == SortDirection.Ascending
+                    It.Is<PagedQuery>(q =>
+                        q.SortField == "LastName"
+                        && q.SortDirection == SortDirection.Descending
                     ),
                     It.IsAny<CancellationToken>()
                 ),
-            Times.AtLeastOnce
+            Times.Once
         );
 
-        // --- Click 2: Ascending → Descending ---
-        cut.FindAll("th button.btn-link")[0].Click(); // Name/LastName column, index 0
+        // --- Click 2: same field again → flips Descending → Ascending ---
+        cut.FindAll("th button.btn-link")[0].Click();
+
+        // The Ascending/LastName variant has now been issued exactly twice:
+        // once on initial render, once after the second LastName click.
+        _service.Verify(
+            s =>
+                s.GetPagedAsync(
+                    It.Is<PagedQuery>(q =>
+                        q.SortField == "LastName"
+                        && q.SortDirection == SortDirection.Ascending
+                    ),
+                    It.IsAny<CancellationToken>()
+                ),
+            Times.Exactly(2)
+        );
+
+        // --- Click 3: different field (Email) → resets to Ascending ---
+        cut.FindAll("th button.btn-link")[1].Click();
 
         _service.Verify(
             s =>
                 s.GetPagedAsync(
-                    It.Is<PagedQuery>(
-                        q =>
-                            q.SortField == "LastName"
-                            && q.SortDirection == SortDirection.Descending
+                    It.Is<PagedQuery>(q =>
+                        q.SortField == "Email"
+                        && q.SortDirection == SortDirection.Ascending
                     ),
                     It.IsAny<CancellationToken>()
                 ),
-            Times.AtLeastOnce
-        );
-
-        // --- Click 3: Descending → no sort (component falls back to LastName/Ascending in query) ---
-        cut.FindAll("th button.btn-link")[0].Click(); // Name/LastName column, index 0
-
-        // At this point GetPagedAsync(LastName, Ascending) has been called at least twice:
-        // once on initial render and once for the click-1 Ascending reload.
-        _service.Verify(
-            s =>
-                s.GetPagedAsync(
-                    It.Is<PagedQuery>(
-                        q =>
-                            q.SortField == "LastName"
-                            && q.SortDirection == SortDirection.Ascending
-                    ),
-                    It.IsAny<CancellationToken>()
-                ),
-            Times.AtLeast(2)
+            Times.Once
         );
     }
 }

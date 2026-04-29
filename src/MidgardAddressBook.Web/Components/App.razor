@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["MidgardAddressBook.Web.styles.css"]" />
     <ImportMap />
-    <HeadOutlet />
+    <HeadOutlet @rendermode="InteractiveServer" />
     <!-- No-flash theme init: runs before CSS paints, prevents FOUC in dark mode -->
     <script>
         (function () {
@@ -25,7 +25,7 @@
 </head>
 
 <body>
-    <Routes />
+    <Routes @rendermode="InteractiveServer" />
     <ReconnectModal />
     <script src="@Assets["_framework/blazor.web.js"]"></script>
     <script src="@Assets["js/bootstrap.bundle.min.js"]"></script>

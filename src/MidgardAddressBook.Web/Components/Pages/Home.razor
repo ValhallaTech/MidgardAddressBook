@@ -245,7 +245,6 @@ else
     private string? searchText;
     private string  sortField    = "LastName";
     private SortDirection sortDirection = SortDirection.Ascending;
-    private bool sortActive = true;
 
     // Debounce support for the search input.
     private CancellationTokenSource? _searchDebounce;
@@ -280,8 +279,8 @@ else
                     page:          currentPage,
                     pageSize:      pageSize,
                     searchText:    searchText,
-                    sortField:     sortActive ? sortField : "LastName",
-                    sortDirection: sortActive ? sortDirection : SortDirection.Ascending),
+                    sortField:     sortField,
+                    sortDirection: sortDirection),
                 token);
 
             if (!token.IsCancellationRequested)
@@ -308,24 +307,25 @@ else
     }
 
     // ── Sort ──────────────────────────────────────────────────────────────────
+    //
+    // Two-state toggle: clicking a column header toggles its direction
+    // (ascending ↔ descending). Clicking a different column resets to ascending.
+    // Earlier PR #31 introduced a three-state asc/desc/off cycle as a workaround
+    // while events weren't wiring up; root cause (root render mode) is now fixed
+    // in App.razor, so we keep the simpler, more conventional two-state UX.
 
     private async Task OnSortClick(string field)
     {
-        if (!sortActive || sortField != field)
+        if (sortField == field)
         {
-            sortField     = field;
-            sortDirection = SortDirection.Ascending;
-            sortActive   = true;
-        }
-        else if (sortDirection == SortDirection.Ascending)
-        {
-            sortDirection = SortDirection.Descending;
-            sortActive   = true;
+            sortDirection = sortDirection == SortDirection.Ascending
+                ? SortDirection.Descending
+                : SortDirection.Ascending;
         }
         else
         {
-            // Descending → no sort
-            sortActive = false;
+            sortField     = field;
+            sortDirection = SortDirection.Ascending;
         }
 
         currentPage = 1;
@@ -405,13 +405,13 @@ else
 
     private string GetAriaSortValue(string field)
     {
-        if (!sortActive || sortField != field) return "none";
+        if (sortField != field) return "none";
         return sortDirection == SortDirection.Ascending ? "ascending" : "descending";
     }
 
     private MarkupString SortIndicator(string field)
     {
-        if (!sortActive || sortField != field)
+        if (sortField != field)
             return new MarkupString(
                 "<i class=\"fa-solid fa-sort text-body-tertiary ms-1\" aria-hidden=\"true\"></i>");
 
