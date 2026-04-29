@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MidgardAddressBook.Core.Dtos;
+using MidgardAddressBook.Core.Models.Pagination;
 
 namespace MidgardAddressBook.Core.Interfaces;
 
@@ -12,6 +13,19 @@ public interface IAddressBookService
 {
     /// <summary>Lists all entries (may be served from cache).</summary>
     Task<IReadOnlyList<AddressBookEntryDto>> GetAllAsync(
+        CancellationToken cancellationToken = default
+    );
+
+    /// <summary>
+    /// Returns a single page of entries matching the supplied <paramref name="query"/>,
+    /// with total count metadata for pagination controls.
+    /// Results are not cached due to the high cardinality of possible permutations.
+    /// </summary>
+    /// <param name="query">Pagination, sort, and filter parameters.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <returns>A <see cref="PagedResult{T}"/> containing the page items and paging metadata.</returns>
+    Task<PagedResult<AddressBookEntryDto>> GetPagedAsync(
+        PagedQuery query,
         CancellationToken cancellationToken = default
     );
 

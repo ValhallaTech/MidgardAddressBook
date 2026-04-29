@@ -8,6 +8,7 @@ using MidgardAddressBook.Core.Caching;
 using MidgardAddressBook.Core.Dtos;
 using MidgardAddressBook.Core.Interfaces;
 using MidgardAddressBook.Core.Models;
+using MidgardAddressBook.Core.Models.Pagination;
 
 namespace MidgardAddressBook.BLL.Services;
 
@@ -62,6 +63,40 @@ public class AddressBookService : IAddressBookService
             .SetAsync(ListCacheKey, new CachedList(dtos), ListCacheTtl, cancellationToken)
             .ConfigureAwait(false);
         return dtos;
+    }
+
+    /// <inheritdoc />
+    public async Task<PagedResult<AddressBookEntryDto>> GetPagedAsync(
+        PagedQuery query,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        var sanitized = query.Sanitized();
+        var (items, totalCount) = await _repository
+            .GetPagedAsync(sanitized, cancellationToken)
+            .ConfigureAwait(false);
+
+        var dtos = _mapper.Map<IReadOnlyList<AddressBookEntryDto>>(items);
+
+        PagedResult<AddressBookEntryDto> result = new()
+        {
+            Items = dtos,
+            TotalCount = totalCount,
+            Page = sanitized.Page,
+            PageSize = sanitized.PageSize,
+        };
+
+        _logger.LogDebug(
+            "GetPagedAsync returned page {Page}/{TotalPages} ({PageSize} items per page, {TotalCount} total).",
+            result.Page,
+            result.TotalPages,
+            result.PageSize,
+            result.TotalCount
+        );
+
+        return result;
     }
 
     /// <inheritdoc />
