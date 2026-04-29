@@ -3,6 +3,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using MidgardAddressBook.DAL.Caching;
 using MidgardAddressBook.DAL.Configuration;
+using MidgardAddressBook.DAL.Extensions;
 using MidgardAddressBook.DAL.Migrations;
 using MidgardAddressBook.Web.Components;
 using MidgardAddressBook.Web.DependencyInjection;
@@ -63,6 +64,9 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
 
 // --- FluentMigrator -------------------------------------------------------
 builder.Services.AddMidgardMigrations(postgresConnectionString);
+
+// --- Data access layer (Dapper.Extensions for PostgreSQL) ------------------
+builder.Services.AddDal();
 
 // --- Blazor ---------------------------------------------------------------
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
