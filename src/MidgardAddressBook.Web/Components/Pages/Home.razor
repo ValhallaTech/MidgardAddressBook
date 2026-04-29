@@ -20,15 +20,19 @@
 <div class="row g-2 mb-3 align-items-center">
     <div class="col-12 col-sm">
         <div class="input-group">
-            <span class="input-group-text" aria-hidden="true">
-                <i class="fa-solid fa-magnifying-glass"></i>
-            </span>
+            <button class="input-group-text btn"
+                    type="button"
+                    aria-label="Search"
+                    @onclick="ExecuteSearchAsync">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            </button>
             <input type="search"
                    class="form-control"
                    placeholder="Search contacts…"
                    aria-label="Search contacts"
                    value="@searchText"
-                   @oninput="OnSearchInput" />
+                   @oninput="OnSearchInput"
+                   @onkeydown="OnSearchKeyDown" />
         </div>
     </div>
     <div class="col-auto">
@@ -37,8 +41,8 @@
             <select id="pageSizeSelect"
                     class="form-select form-select-sm"
                     style="width: auto;"
-                    value="@pageSize"
-                    @onchange="OnPageSizeChange">
+                    @bind="pageSize"
+                    @bind:after="OnPageSizeChangedAsync">
                 <option value="10">10</option>
                 <option value="25">25</option>
                 <option value="50">50</option>
@@ -241,6 +245,7 @@ else
     private string? searchText;
     private string  sortField    = "LastName";
     private SortDirection sortDirection = SortDirection.Ascending;
+    private bool sortActive = true;
 
     // Debounce support for the search input.
     private CancellationTokenSource? _searchDebounce;
@@ -275,8 +280,8 @@ else
                     page:          currentPage,
                     pageSize:      pageSize,
                     searchText:    searchText,
-                    sortField:     sortField,
-                    sortDirection: sortDirection),
+                    sortField:     sortActive ? sortField : "LastName",
+                    sortDirection: sortActive ? sortDirection : SortDirection.Ascending),
                 token);
 
             if (!token.IsCancellationRequested)
@@ -306,14 +311,21 @@ else
 
     private async Task OnSortClick(string field)
     {
-        if (sortField == field)
-            sortDirection = sortDirection == SortDirection.Ascending
-                ? SortDirection.Descending
-                : SortDirection.Ascending;
-        else
+        if (!sortActive || sortField != field)
         {
             sortField     = field;
             sortDirection = SortDirection.Ascending;
+            sortActive   = true;
+        }
+        else if (sortDirection == SortDirection.Ascending)
+        {
+            sortDirection = SortDirection.Descending;
+            sortActive   = true;
+        }
+        else
+        {
+            // Descending → no sort
+            sortActive = false;
         }
 
         currentPage = 1;
@@ -352,13 +364,25 @@ else
         await LoadPageAsync();
     }
 
+    private async Task OnSearchKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key != "Enter") { return; }
+        await ExecuteSearchAsync();
+    }
+
+    private async Task ExecuteSearchAsync()
+    {
+        _searchDebounce?.Cancel();
+        _searchDebounce?.Dispose();
+        _searchDebounce = null;
+        currentPage = 1;
+        await LoadPageAsync();
+    }
+
     // ── Page size ─────────────────────────────────────────────────────────────
 
-    private async Task OnPageSizeChange(ChangeEventArgs e)
+    private async Task OnPageSizeChangedAsync()
     {
-        if (int.TryParse(e.Value?.ToString(), out var size))
-            pageSize = size;
-
         currentPage = 1;
         await LoadPageAsync();
     }
@@ -381,13 +405,13 @@ else
 
     private string GetAriaSortValue(string field)
     {
-        if (sortField != field) return "none";
+        if (!sortActive || sortField != field) return "none";
         return sortDirection == SortDirection.Ascending ? "ascending" : "descending";
     }
 
     private MarkupString SortIndicator(string field)
     {
-        if (sortField != field)
+        if (!sortActive || sortField != field)
             return new MarkupString(
                 "<i class=\"fa-solid fa-sort text-body-tertiary ms-1\" aria-hidden=\"true\"></i>");
 
