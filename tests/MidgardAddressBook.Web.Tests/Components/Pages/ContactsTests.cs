@@ -15,14 +15,14 @@ using Xunit;
 namespace MidgardAddressBook.Web.Tests.Components.Pages;
 
 /// <summary>
-/// bUnit tests for the <see cref="Home"/> Blazor page covering loading, empty,
+/// bUnit tests for the <see cref="Contacts"/> Blazor page covering loading, empty,
 /// and populated states; the delete interaction; contact-count display; and search.
 /// </summary>
-public class HomeTests : BunitContext
+public class ContactsTests : BunitContext
 {
     private readonly Mock<IAddressBookService> _service = new();
 
-    public HomeTests()
+    public ContactsTests()
     {
         Services.AddSingleton(_service.Object);
     }
@@ -53,7 +53,7 @@ public class HomeTests : BunitContext
             .Setup(s => s.GetPagedAsync(It.IsAny<PagedQuery>(), It.IsAny<CancellationToken>()))
             .Returns(tcs.Task);
 
-        var cut = Render<Home>();
+        var cut = Render<Contacts>();
 
         cut.Markup.Should().Contain("Loading contacts");
     }
@@ -65,7 +65,7 @@ public class HomeTests : BunitContext
             .Setup(s => s.GetPagedAsync(It.IsAny<PagedQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(EmptyPagedResult());
 
-        var cut = Render<Home>();
+        var cut = Render<Contacts>();
 
         cut.Markup.Should().Contain("No contacts yet");
     }
@@ -90,7 +90,7 @@ public class HomeTests : BunitContext
                 )
             );
 
-        var cut = Render<Home>();
+        var cut = Render<Contacts>();
 
         var rows = cut.FindAll("tbody tr");
         rows.Should().HaveCount(1);
@@ -125,7 +125,7 @@ public class HomeTests : BunitContext
             .Setup(s => s.DeleteAsync(5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        var cut = Render<Home>();
+        var cut = Render<Contacts>();
         cut.Find("button.btn-outline-danger").Click();
 
         _service.Verify(s => s.DeleteAsync(5, It.IsAny<CancellationToken>()), Times.Once);
@@ -164,7 +164,7 @@ public class HomeTests : BunitContext
                 }
             );
 
-        var cut = Render<Home>();
+        var cut = Render<Contacts>();
 
         cut.Find(".card-header span").TextContent.Should().Contain("42");
         cut.Find(".card-header span").TextContent.Should().Contain("contacts");
@@ -179,7 +179,7 @@ public class HomeTests : BunitContext
             .Setup(s => s.GetPagedAsync(It.IsAny<PagedQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(EmptyPagedResult());
 
-        var cut = Render<Home>();
+        var cut = Render<Contacts>();
 
         // Simulate the user typing into the search box.
         cut.Find("input[type='search']").Input("Thor");
@@ -210,7 +210,7 @@ public class HomeTests : BunitContext
             .Setup(s => s.GetPagedAsync(It.IsAny<PagedQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(EmptyPagedResult());
 
-        var cut = Render<Home>();
+        var cut = Render<Contacts>();
 
         // Act – change the per-page selector; @bind + @bind:after fires OnPageSizeChangedAsync.
         cut.Find("#pageSizeSelect").Change("10");
@@ -236,7 +236,7 @@ public class HomeTests : BunitContext
             .Setup(s => s.GetPagedAsync(It.IsAny<PagedQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(EmptyPagedResult());
 
-        var cut = Render<Home>();
+        var cut = Render<Contacts>();
         var searchInput = cut.Find("input[type='search']");
 
         // Act – type the query then press Enter; Enter cancels the debounce and
@@ -269,7 +269,7 @@ public class HomeTests : BunitContext
             .Setup(s => s.GetPagedAsync(It.IsAny<PagedQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(EmptyPagedResult());
 
-        var cut = Render<Home>();
+        var cut = Render<Contacts>();
 
         // Act – type the query then click the magnifying-glass button.
         cut.Find("input[type='search']").Input("whatever");
@@ -315,7 +315,7 @@ public class HomeTests : BunitContext
                 )
             );
 
-        var cut = Render<Home>();
+        var cut = Render<Contacts>();
 
         // Column order in the table thead (mirrors the razor markup):
         //   [0] Name/LastName  [1] Email  [2] Phone  [3] City,State  [4] DateAdded
