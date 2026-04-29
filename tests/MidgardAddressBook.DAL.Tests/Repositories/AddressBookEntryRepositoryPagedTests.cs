@@ -71,7 +71,13 @@ public sealed class AddressBookEntryRepositoryPagedTests : IDisposable
     public async Task Should_ReturnRequestedPage_When_PageGreaterThanOne()
     {
         // Arrange
-        var query = new PagedQuery(
+        var page1Query = new PagedQuery(
+            page: 1,
+            pageSize: 10,
+            searchText: null,
+            sortField: "LastName",
+            sortDirection: SortDirection.Ascending);
+        var page2Query = new PagedQuery(
             page: 2,
             pageSize: 10,
             searchText: null,
@@ -79,11 +85,17 @@ public sealed class AddressBookEntryRepositoryPagedTests : IDisposable
             sortDirection: SortDirection.Ascending);
 
         // Act
-        var (items, totalCount) = await _repository.GetPagedAsync(query);
+        var (page1Items, page1TotalCount) = await _repository.GetPagedAsync(page1Query);
+        var (page2Items, page2TotalCount) = await _repository.GetPagedAsync(page2Query);
 
-        // Assert
-        totalCount.Should().Be(SeedCount);
-        items.Should().HaveCount(10);
+        // Assert — total count is stable across pages and the page-2 result set is
+        // both the correct size and disjoint from page 1 (so OFFSET/skip is wired up
+        // correctly and not silently returning the same page twice).
+        page1TotalCount.Should().Be(SeedCount);
+        page2TotalCount.Should().Be(SeedCount);
+        page1Items.Should().HaveCount(10);
+        page2Items.Should().HaveCount(10);
+        page2Items.Select(e => e.Id).Should().NotIntersectWith(page1Items.Select(e => e.Id));
     }
 
     [Fact]

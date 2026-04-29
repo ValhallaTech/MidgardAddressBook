@@ -20,6 +20,8 @@ public static class ServiceCollectionExtensions
     /// <returns>The same <paramref name="services"/> instance, for chaining.</returns>
     public static IServiceCollection AddDal(this IServiceCollection services)
     {
+        ArgumentNullException.ThrowIfNull(services);
+
         // AddDapperForPostgreSQL registers IDapper (PostgreSqlDapper) as scoped and the default
         // IConnectionStringProvider as a singleton. AddDapperConnectionStringProvider then
         // replaces the default with our DataOptions-backed implementation so that the same
