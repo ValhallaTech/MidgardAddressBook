@@ -2,13 +2,18 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using FluentAssertions;
 using FluentMigrator.Runner;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using MidgardAddressBook.Core.Caching;
+using MidgardAddressBook.Core.Interfaces;
 using MidgardAddressBook.DAL.Migrations;
 using Moq;
+using Npgsql;
+using Testcontainers.PostgreSql;
 using Xunit;
 
 namespace MidgardAddressBook.DAL.Tests.Migrations;
@@ -131,5 +136,90 @@ public class MigrationRunnerExtensionsTests
         services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
         services.AddScoped(_ => localRunner.Object);
         return services.BuildServiceProvider();
+    }
+}
+
+/// <summary>
+/// Integration tests for <see cref="MigrationRunnerExtensions.SeedIfRequestedAsync"/> that
+/// verify cache-invalidation behaviour using a real PostgreSQL Testcontainer.
+/// Each test class instance gets its own fresh container so the seeded/non-seeded scenarios
+/// are fully isolated from each other.
+/// </summary>
+public sealed class SeedIfRequestedAsyncTests : IAsyncLifetime
+{
+    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder()
+        .WithImage("postgres:18.3-alpine")
+        .Build();
+
+    private string _connectionString = string.Empty;
+
+    /// <inheritdoc />
+    public async Task InitializeAsync()
+    {
+        await _postgres.StartAsync().ConfigureAwait(false);
+        _connectionString = _postgres.GetConnectionString();
+
+        // Apply schema migrations so address_book_entries exists.
+        var services = new ServiceCollection();
+        services.AddMidgardMigrations(_connectionString);
+        await using var provider = services.BuildServiceProvider();
+        await provider
+            .RunMidgardMigrationsAsync(
+                maxAttempts: 3,
+                retryDelay: TimeSpan.FromSeconds(2)
+            )
+            .ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task DisposeAsync() => await _postgres.DisposeAsync().ConfigureAwait(false);
+
+    [Fact]
+    public async Task SeedIfRequestedAsync_WhenTableIsEmpty_SeedsData_AndInvalidatesCache()
+    {
+        var cacheMock = new Mock<ICacheService>();
+        var services = new ServiceCollection();
+        services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
+        services.AddSingleton(cacheMock.Object);
+        await using var provider = services.BuildServiceProvider();
+
+        await provider.SeedIfRequestedAsync(
+            seedRequested: true,
+            _connectionString
+        );
+
+        cacheMock.Verify(
+            c => c.RemoveAsync(CacheKeys.AddressBookList, It.IsAny<CancellationToken>()),
+            Times.Once
+        );
+    }
+
+    [Fact]
+    public async Task SeedIfRequestedAsync_WhenTableHasRows_SkipsSeeder_AndDoesNotInvalidateCache()
+    {
+        // Pre-insert one row so the idempotency check skips seeding.
+        await using var conn = new NpgsqlConnection(_connectionString);
+        await conn.OpenAsync();
+        await conn.ExecuteAsync(
+            "INSERT INTO address_book_entries "
+                + "(first_name, last_name, email, address1, state, city, zip_code, phone, date_added) "
+                + "VALUES ('T','T','t@t.com','1 St','NY','NYC','10001','555-0000000', NOW())"
+        );
+
+        var cacheMock = new Mock<ICacheService>();
+        var services = new ServiceCollection();
+        services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
+        services.AddSingleton(cacheMock.Object);
+        await using var provider = services.BuildServiceProvider();
+
+        await provider.SeedIfRequestedAsync(
+            seedRequested: true,
+            _connectionString
+        );
+
+        cacheMock.Verify(
+            c => c.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never
+        );
     }
 }

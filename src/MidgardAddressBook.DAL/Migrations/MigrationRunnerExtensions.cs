@@ -6,6 +6,8 @@ using Dapper;
 using FluentMigrator.Runner;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MidgardAddressBook.Core.Caching;
+using MidgardAddressBook.Core.Interfaces;
 using MidgardAddressBook.DAL.Seeding;
 using Npgsql;
 
@@ -169,6 +171,17 @@ public static class MigrationRunnerExtensions
         await seeder.SeedAsync(count, cancellationToken).ConfigureAwait(false);
 
         logger.LogInformation("Database seeding complete ({Count} records inserted).", count);
+
+        // Invalidate any stale list cache that may have been written before seeding.
+        // A RemoveAsync on a missing key is a safe no-op.
+        var cache = serviceProvider.GetService<ICacheService>();
+        if (cache is not null)
+        {
+            await cache
+                .RemoveAsync(CacheKeys.AddressBookList, cancellationToken)
+                .ConfigureAwait(false);
+            logger.LogInformation("Redis list cache invalidated after seeding.");
+        }
     }
 
     /// <summary>

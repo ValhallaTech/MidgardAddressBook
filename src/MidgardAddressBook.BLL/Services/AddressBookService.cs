@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
+using MidgardAddressBook.Core.Caching;
 using MidgardAddressBook.Core.Dtos;
 using MidgardAddressBook.Core.Interfaces;
 using MidgardAddressBook.Core.Models;
@@ -16,7 +17,7 @@ namespace MidgardAddressBook.BLL.Services;
 /// </summary>
 public class AddressBookService : IAddressBookService
 {
-    private const string ListCacheKey = "address-book:entries:all";
+    private const string ListCacheKey = CacheKeys.AddressBookList;
     private static readonly TimeSpan ListCacheTtl = TimeSpan.FromMinutes(5);
 
     private readonly IAddressBookEntryRepository _repository;
