@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace MidgardAddressBook.Core.Models.Pagination;
 
@@ -16,8 +17,8 @@ public sealed class PagedQuery
     /// Field names that are permitted as sort keys, mapped to their corresponding
     /// PostgreSQL column names.
     /// </summary>
-    public static readonly IReadOnlyDictionary<string, string> AllowedSortFields =
-        new Dictionary<string, string>(System.StringComparer.OrdinalIgnoreCase)
+    public static readonly ImmutableDictionary<string, string> AllowedSortFields =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             ["LastName"] = "last_name",
             ["FirstName"] = "first_name",
@@ -26,7 +27,7 @@ public sealed class PagedQuery
             ["City"] = "city",
             ["State"] = "state",
             ["DateAdded"] = "date_added",
-        };
+        }.ToImmutableDictionary(StringComparer.OrdinalIgnoreCase);
 
     private const string DefaultSortField = "LastName";
     private const int MinPageSize = 1;

@@ -72,7 +72,8 @@ public class AddressBookEntryRepository : IAddressBookEntryRepository
 
         var parameters = new DynamicParameters();
         parameters.Add("Limit", query.PageSize);
-        parameters.Add("Offset", (query.Page - 1) * query.PageSize);
+        long offset = ((long)query.Page - 1L) * query.PageSize;
+        parameters.Add("Offset", offset);
 
         string whereClause = string.Empty;
         if (!string.IsNullOrEmpty(query.SearchText))
