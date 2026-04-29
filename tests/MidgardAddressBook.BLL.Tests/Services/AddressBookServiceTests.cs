@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -8,6 +9,7 @@ using MidgardAddressBook.BLL.Services;
 using MidgardAddressBook.Core.Dtos;
 using MidgardAddressBook.Core.Interfaces;
 using MidgardAddressBook.Core.Models;
+using MidgardAddressBook.Core.Models.Pagination;
 using Moq;
 using Xunit;
 
@@ -90,5 +92,58 @@ public class AddressBookServiceTests
         var result = await service.GetByIdAsync(99);
 
         result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetPagedAsync_ReturnsPagedResult_FromRepository()
+    {
+        // Arrange
+        var entities = new List<AddressBookEntry>
+        {
+            new()
+            {
+                Id = 1,
+                FirstName = "Thor",
+                LastName = "Odinson",
+                Email = "thor@asgard.realm",
+            },
+        };
+
+        var repo = new Mock<IAddressBookEntryRepository>();
+        repo.Setup(r =>
+                r.GetPagedAsync(It.IsAny<PagedQuery>(), It.IsAny<CancellationToken>())
+            )
+            .ReturnsAsync((entities, 42));
+
+        var cache = new Mock<ICacheService>();
+        var service = new AddressBookService(
+            repo.Object,
+            cache.Object,
+            CreateMapper(),
+            NullLogger<AddressBookService>.Instance
+        );
+
+        var query = new PagedQuery(
+            page: 2,
+            pageSize: 10,
+            searchText: null,
+            sortField: "LastName",
+            sortDirection: SortDirection.Ascending
+        );
+
+        // Act
+        var result = await service.GetPagedAsync(query);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Items.Should().HaveCount(1);
+        result.Items[0].FirstName.Should().Be("Thor");
+        result.Items[0].LastName.Should().Be("Odinson");
+        result.TotalCount.Should().Be(42);
+        result.Page.Should().Be(2);
+        result.PageSize.Should().Be(10);
+
+        // GetPagedAsync must never touch the cache.
+        cache.VerifyNoOtherCalls();
     }
 }
