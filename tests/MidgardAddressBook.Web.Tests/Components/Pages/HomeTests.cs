@@ -323,7 +323,6 @@ public class HomeTests : BunitContext
         //   [0] Name/LastName  [1] Email  [2] Phone  [3] City,State  [4] DateAdded
         var thButtons = cut.FindAll("th button.btn-link");
         var emailSortButton = thButtons[1]; // Email column header
-        var nameSortButton = thButtons[0];  // Name/LastName column header
 
         emailSortButton.Click(); // activate Email sort (moves away from default LastName)
 
