@@ -7,6 +7,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using MidgardAddressBook.BLL.Mapping;
 using MidgardAddressBook.BLL.Services;
+using MidgardAddressBook.Core.Caching;
 using MidgardAddressBook.Core.Dtos;
 using MidgardAddressBook.Core.Interfaces;
 using MidgardAddressBook.Core.Models;
@@ -337,5 +338,14 @@ public class AddressBookServiceBehaviorTests
 
         result.Should().BeFalse();
         _cache.RemovedKeys.Should().BeEmpty();
+    }
+
+    // ---- Cache key wiring --------------------------------------------------
+
+    [Fact]
+    public void CacheKeys_AddressBookList_HasExpectedValue()
+    {
+        // Regression guard: if the constant value ever drifts the cache breaks silently.
+        CacheKeys.AddressBookList.Should().Be("address-book:entries:all");
     }
 }
