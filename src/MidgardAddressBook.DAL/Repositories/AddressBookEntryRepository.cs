@@ -7,6 +7,7 @@ using Dapper;
 using Microsoft.Extensions.Options;
 using MidgardAddressBook.Core.Interfaces;
 using MidgardAddressBook.Core.Models;
+using MidgardAddressBook.Core.Models.Pagination;
 using MidgardAddressBook.DAL.Configuration;
 using Npgsql;
 
@@ -52,6 +53,58 @@ public class AddressBookEntryRepository : IAddressBookEntryRepository
         );
         var rows = await connection.QueryAsync<AddressBookEntry>(command).ConfigureAwait(false);
         return [.. rows];
+    }
+
+    /// <inheritdoc />
+    public async Task<(IReadOnlyList<AddressBookEntry> Items, int TotalCount)> GetPagedAsync(
+        PagedQuery query,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        // Resolve the sort column from the allow-list — never interpolate user input directly.
+        string sortColumn = PagedQuery.AllowedSortFields.TryGetValue(query.SortField, out string? mappedColumn)
+            ? mappedColumn
+            : "last_name";
+
+        string sortDirection = query.SortDirection == SortDirection.Descending ? "DESC" : "ASC";
+
+        var parameters = new DynamicParameters();
+        parameters.Add("Limit", query.PageSize);
+        long offset = ((long)query.Page - 1L) * query.PageSize;
+        parameters.Add("Offset", offset);
+
+        string whereClause = string.Empty;
+        if (!string.IsNullOrEmpty(query.SearchText))
+        {
+            whereClause =
+                "WHERE (first_name ILIKE @Search OR last_name ILIKE @Search OR email ILIKE @Search OR phone ILIKE @Search)";
+            parameters.Add("Search", $"%{query.SearchText}%");
+        }
+
+        // Both queries share the same WHERE clause; run them in a single round-trip via QueryMultipleAsync.
+        string sql =
+            $"""
+            SELECT {SelectColumnsForList}
+            FROM   address_book_entries
+            {whereClause}
+            ORDER  BY {sortColumn} {sortDirection}, id ASC
+            LIMIT  @Limit OFFSET @Offset;
+
+            SELECT COUNT(*)::int
+            FROM   address_book_entries
+            {whereClause};
+            """;
+
+        using var connection = CreateConnection();
+        var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+
+        using var multi = await connection.QueryMultipleAsync(command).ConfigureAwait(false);
+        var rows = await multi.ReadAsync<AddressBookEntry>().ConfigureAwait(false);
+        int totalCount = await multi.ReadSingleAsync<int>().ConfigureAwait(false);
+
+        return ([.. rows], totalCount);
     }
 
     /// <inheritdoc />
