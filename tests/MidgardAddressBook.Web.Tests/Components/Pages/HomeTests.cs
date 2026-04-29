@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bunit;
 using FluentAssertions;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using MidgardAddressBook.Core.Dtos;
 using MidgardAddressBook.Core.Interfaces;
