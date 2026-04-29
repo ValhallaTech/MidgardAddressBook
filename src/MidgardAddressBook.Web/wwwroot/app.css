@@ -36,3 +36,23 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+/* ---- Splash page ---- */
+.splash-hero {
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+.splash-icon {
+    font-size: 5rem;
+    color: var(--bs-primary);
+    line-height: 1;
+}
+
+.splash-tagline {
+    max-width: 36rem;
+}
+
+.splash-cta {
+    min-width: 14rem;
+}

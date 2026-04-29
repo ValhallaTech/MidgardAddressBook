@@ -104,7 +104,7 @@ public class EntryEditTests : BunitContext
                 ),
             Times.Once
         );
-        nav.Uri.Should().EndWith("/");
+        nav.Uri.Should().EndWith("/contacts");
     }
 
     [Fact]
@@ -144,7 +144,7 @@ public class EntryEditTests : BunitContext
                 ),
             Times.Once
         );
-        nav.Uri.Should().EndWith("/");
+        nav.Uri.Should().EndWith("/contacts");
     }
 
     private static void FillRequiredFields(IRenderedComponent<EntryEdit> cut)
