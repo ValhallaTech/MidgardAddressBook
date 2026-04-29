@@ -180,12 +180,12 @@ public sealed class SeedIfRequestedAsyncTests : IAsyncLifetime
         var cacheMock = new Mock<ICacheService>();
         var services = new ServiceCollection();
         services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
-        services.AddSingleton(cacheMock.Object);
+        services.AddSingleton<ICacheService>(cacheMock.Object);
         await using var provider = services.BuildServiceProvider();
 
         await provider.SeedIfRequestedAsync(
             seedRequested: true,
-            _connectionString
+            postgresConnectionString: _connectionString
         );
 
         cacheMock.Verify(
@@ -209,12 +209,12 @@ public sealed class SeedIfRequestedAsyncTests : IAsyncLifetime
         var cacheMock = new Mock<ICacheService>();
         var services = new ServiceCollection();
         services.AddSingleton<ILoggerFactory>(NullLoggerFactory.Instance);
-        services.AddSingleton(cacheMock.Object);
+        services.AddSingleton<ICacheService>(cacheMock.Object);
         await using var provider = services.BuildServiceProvider();
 
         await provider.SeedIfRequestedAsync(
             seedRequested: true,
-            _connectionString
+            postgresConnectionString: _connectionString
         );
 
         cacheMock.Verify(
