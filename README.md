@@ -69,7 +69,7 @@ yarn build
 
 ### Local dev via Docker Compose (recommended)
 
-`docker-compose.yml` stands up the Blazor app alongside PostgreSQL 18.3 and Redis 7 with named volumes:
+`docker-compose.yml` stands up the Blazor app alongside PostgreSQL 18.3 and Redis 8 with named volumes:
 
 ```bash
 docker compose up --build
