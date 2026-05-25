@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------
 # Stage 1: Build front-end assets (Bootstrap) with Node.
 # ------------------------------------------------------------------
-FROM node:24.15.0-alpine AS assets
+FROM node:24.16.0-alpine AS assets
 WORKDIR /src/web
 RUN corepack enable && corepack prepare yarn@4.14.1 --activate
 COPY src/MidgardAddressBook.Web/package.json src/MidgardAddressBook.Web/yarn.lock src/MidgardAddressBook.Web/.yarnrc.yml ./
