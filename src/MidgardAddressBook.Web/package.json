@@ -5,7 +5,7 @@
   "description": "Front-end assets (Bootstrap) for the MidgardAddressBook Blazor Web App.",
   "packageManager": "yarn@4.15.0",
   "engines": {
-    "node": "24.15.0"
+    "node": "24.16.0"
   },
   "scripts": {
     "build": "node ./build-assets.mjs",
